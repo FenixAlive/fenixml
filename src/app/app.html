@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <style>
+      {css}
+    </style>
+</head>
+<body>
+  <div id="appContainer">
+    <div id="container">
+      <div class="intcont" id="cabecera">
+        <div class="cabrows">
+          <div class="cabcols" id="seriefol">
+            <div id="serie"></div>
+            <div id="folio"></div>
+          </div>
+          <div class="cabcols">
+            <div class="cabrows" id="uuid"></div>
+          </div>
+        </div>
+        <div>
+          <div id="ftlcont"  class="cabrows">
+            <div class="cabcols"><div id="fecha"></div></div>
+            <div class="cabcols"><div id="tipoComp"></div></div>
+            <div class="cabcols"><div id="lugarExp"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="intcont" id="emirec">
+        <div class="cabcols" id="emisorcont">
+          <div id="emTitulo"><b>Emisor</b></div>
+          <div id="rfcEmi"></div>
+          <div id="razonEmi"></div>
+          <div id="regimenEmi"> </div>
+        </div>
+        <div class="cabcols" id="receptorcont">
+          <div id="recTitulo"><b>Receptor</b></div>
+          <div id="rfcRec"></div>
+          <div id="razonRec"></div>
+          <div id="usoCfdi"></div>
+        </div>
+      </div>
+      <div class="intcont" id="conceptos">
+        <div class="concepCont cabcols">
+          <div class="concepBase cabrows">
+            <div class="cantidad">Cantidad</div>
+            <div class="descrip">Descripción</div>
+            <div class="importeConcep">Importe</div>
+          </div>
+        </div>
+        <div class="concepCont cabcols">
+          <div class="concepBase dato">
+            <div class="cantidad"></div>
+            <div class="descrip"></div>
+            <div class="importeConcep"></div>
+          </div>
+          <div class="concepDet cabrows"></div>
+        </div>
+      </div>
+      <div class="intcont" id="traslaCont">
+        <div id="trasAdiCont">
+          <div id="formaPago"></div>
+          <div id="metodoPago"></div> 
+          <div id="tipoCambio"></div>
+          <div id="moneda"></div>
+        </div>
+        <div id="trasCont">
+          <div id="subtotal"></div>
+          <div id="descuento"></div>
+          <div id="traslados"></div>
+          <div id="retenciones"></div>
+          <div id="total"></div>
+          <div id="totalPesos"></div>
+        </div>
+      </div>
+      <div class="intcont" id="complemento">
+        <div id="qr"></div>
+        <div id="compCont">
+          <div id="versionCfdi"></div>
+          <div  id="fechaTimbre"></div>
+          <div id="certSat"></div>
+          <div id="certEmi"> </div>
+          <div id="selloEmi">
+          </div>
+          <div id="selloSat"></div>
+          <div id="cadenaTim"></div>
+        </div>
+      </div>
+      <div class="intcont" id ="validar">Valido o no se pudo validar o no valido</div>
+    </div>
+  </div>
+  <script type="text/javascript">        
+    {qrcode}
+  </script>
+  <script type="text/javascript">        
+    {javascript}
+  </script>
+</body>
+</html>

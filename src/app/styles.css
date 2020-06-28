@@ -1,0 +1,184 @@
+*{
+  padding: 0;
+  margin: 0;
+  font-size: 12px;
+  color: #232323;
+  font-family: Sans, Serif, 'Courier New', Courier, monospace;
+  text-align: center;
+}
+#appContainer{
+  height: 100%;
+  width: 100%;
+  min-width: 530px;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#container{
+  margin: 1em 0;
+  width: 90%;
+  min-width: 500px;
+  max-width: 1500px;
+  min-height: 500px;
+  background-color: #f4f4f4;
+  box-shadow: 1px 1px 1px #979797;
+  border-radius: 3px;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  align-items: stretch;
+  align-content: stretch;
+  overflow: hidden;
+}
+
+.intcont{
+  margin: 0.3em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: stretch;
+  align-content: stretch;
+  border: 1px solid #232323;
+  border-radius: 3px;
+}
+
+#cabecera{
+  flex-direction: column;
+}
+.cabrows{
+  margin: 0.1em;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  align-items: stretch;
+  align-content: stretch;
+  border: 1px dashed #232323;
+  
+}
+.cabcols{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+}
+#seriefol{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  min-width: 30%;
+}
+#serie, #folio{
+  min-width: 30%;
+}
+#uuid{
+  min-width: 47%;
+}
+
+#fecha, #tipoComp, #lugarExp{
+  min-width: 30%;
+}
+#emirec{
+  text-align: center !important;
+}
+#emisorcont, #receptorcont, #trasAdiCont, #trasCont {
+  width: 48%;
+  border: 1px solid #232323;
+  border-radius: 3px;
+  margin: 0.2em;
+}
+#emTitulo, #recTitulo{
+  border: 1px dashed #232323;
+}
+#rfcEmi, #razonEmi, #regimenEmi{
+  padding: 0.1em;
+}
+
+#rfcRec, #razonRec, #usoCfdi{
+  padding: 0.1em;
+}
+.concepCont{
+  width: 98%;
+  border: 1px solid #232323;
+  border-radius: 3px;
+}
+.cantidad{
+  width: 20%;
+
+}
+.descrip{
+  width: 57%;
+}
+.importeConcep{
+  width: 20%;
+}
+
+#formaPago, #metodoPago, #tipoCambio, #moneda{
+  text-align: left;
+  padding: 0.1em;
+}
+#qr{
+  width: 25%;
+}
+#compCont{
+  width: 73%;
+  margin: 0 0 0 0.2em;
+  border: 1px dashed #232323;
+  border-radius: 3px;
+}
+#versionCfdi, #fechaTimbre, #certSat, #certEmi{
+  text-align: left;
+  padding: 0.1em;
+}
+.cortarStr{
+  text-align: left;
+  overflow-wrap: break-word !important;
+  padding: 0.2em;
+}
+img{
+  width: 97%;
+  height: auto;
+}
+.datoCont{
+  background-color: rgb(250, 203, 203);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  padding: 0.1em;
+}
+.datoTit{
+  min-width: 20%;
+  padding: 0 0.1em 0 0;
+  text-align: left;
+}
+.datoD{
+  text-align: left;
+  min-width: 20%;
+  padding: 0 0 0 0.5em;
+  border: 1px dashed #232323;
+}
+@media (max-width: 750px) { 
+  *{
+    font-size: 9px;
+  }
+}
+@media (min-width: 1100px) { 
+  *{
+    font-size: 13px;
+  }
+}
+@media (min-width: 1500px) { 
+  *{
+    font-size: 14px;
+  }
+}

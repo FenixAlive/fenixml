@@ -1,0 +1,22 @@
+[package]
+name = "ver_xml_cfdi"
+version = "0.1.0"
+authors = ["FenixAlive <luisangelmf@gmail.com>"]
+edition = "2018"
+build= "build.rs"
+
+[dependencies]
+xmltree = "^0.8"
+web-view = { git = "https://github.com/Boscop/web-view", features = ["edge"] }
+#web-view = "^0.6"
+#web-view = { version = "^0.6", features = ["edge"]} #si quiero usar edge , features = ["edge"] }
+tinyfiledialogs = "3.3.9"
+
+
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1"
+
+[package.metadata.winres]
+FileDescription = "Visor de archivos CFDI versión 3.3 extensión xml"
+OriginalFilename = "leer_xml_cfdi.exe"
+LegalCopyright = "FenixAlive © 2020"
