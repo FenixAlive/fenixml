@@ -24,7 +24,7 @@
   min-width: 500px;
   max-width: 1500px;
   min-height: 500px;
-  background-color: #f4f4f4;
+  background-color: #f9f9f9;
   box-shadow: 1px 1px 1px #979797;
   border-radius: 3px;
   display: -webkit-box;
@@ -41,18 +41,21 @@
 }
 
 .intcont{
-  margin: 0.3em;
+  margin: 0 0.7%;
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-evenly;
   align-items: stretch;
   align-content: stretch;
-  border: 1px solid #232323;
-  border-radius: 3px;
 }
 
-#cabecera{
+#cabecera, #validar{
   flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  border: 1px solid #232323;
+  border-radius: 3px;
 }
 .cabrows{
   margin: 0.1em;
@@ -62,14 +65,14 @@
   justify-content: space-evenly;
   align-items: stretch;
   align-content: stretch;
-  border: 1px dashed #232323;
-  
 }
 .cabcols{
+  width: auto;
   display: flex;
   flex-direction: column;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: space-evenly;
+  border: 1px dashed #232323;
 }
 #seriefol{
   display: flex;
@@ -98,6 +101,7 @@
 }
 #emTitulo, #recTitulo{
   border: 1px dashed #232323;
+  border-radius: 3px;
 }
 #rfcEmi, #razonEmi, #regimenEmi{
   padding: 0.1em;
@@ -116,7 +120,7 @@
 
 }
 .descrip{
-  width: 57%;
+  width: 58%;
 }
 .importeConcep{
   width: 20%;
@@ -132,7 +136,7 @@
 #compCont{
   width: 73%;
   margin: 0 0 0 0.2em;
-  border: 1px dashed #232323;
+  border: 1px solid #232323;
   border-radius: 3px;
 }
 #versionCfdi, #fechaTimbre, #certSat, #certEmi{
@@ -149,23 +153,20 @@ img{
   height: auto;
 }
 .datoCont{
-  background-color: rgb(250, 203, 203);
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
   justify-content: space-evenly;
   padding: 0.1em;
 }
 .datoTit{
-  min-width: 20%;
-  padding: 0 0.1em 0 0;
+  min-width: 25%;
+  padding: 0 0.1em 0 0.05em;
   text-align: left;
 }
 .datoD{
   text-align: left;
   min-width: 20%;
   padding: 0 0 0 0.5em;
-  border: 1px dashed #232323;
 }
 @media (max-width: 750px) { 
   *{
