@@ -22,7 +22,6 @@ fn main() {
             .user_data(())
             .invoke_handler(|webview, arg| {
                 if arg == "inicio" {
-                    println!("{}",arg);
                     datos_cfdi_(webview, &cfdi)?;
                 }
                 Ok(())
@@ -72,6 +71,133 @@ fn leer_cfdi(path: &Path) -> Option<Element>{
         eprintln!("Extensión del archivo no valida");
     }
     return None;
+}
+
+//función que lea datos del cfdi y vaya mandandolas a funciones js para llenar
+fn datos_cfdi_(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(), web_view::Error> {
+    let mut uuid: &str = "";
+    let mut rfc_emi: &str = "";
+    let mut rfc_rec: &str = "";
+    let total = get_data(&cfdi, "Total");
+    let mut sello_ocho = get_data(&cfdi, "Sello");
+    sello_ocho = &sello_ocho[sello_ocho.len()-8..];
+    mandar_datos_web_view(web, cfdi, "Serie", "serie", "Serie")?;
+    mandar_datos_web_view(web, cfdi, "Folio", "folio", "Folio")?;
+    mandar_datos_web_view(web, cfdi, "Fecha", "fecha", "Fecha")?;
+    mandar_datos_web_view(web, cfdi, "TipoDeComprobante", "tipoComp", "Tipo Comprobante")?;
+    mandar_datos_web_view(web, cfdi, "LugarExpedicion", "lugarExp", "C.P. Expedición")?;
+    mandar_datos_web_view(web, cfdi, "Version", "versionCfdi", "Versión CFDI")?;
+    mandar_datos_web_view(web, cfdi, "MetodoPago", "metodoPago", "Metodo de Pago")?;
+    mandar_datos_web_view(web, cfdi, "FormaPago", "formaPago", "Forma de Pago")?;
+    let subtotal = get_data(&cfdi, "SubTotal");
+    web.eval(&format!("rellenar('{}', '{}', '{}')", "subtotal", "Subtotal", convertir_num_moneda(subtotal)))?;
+    //si hay descuento mostrar linea de neto subtotal
+    let descuento = get_data(&cfdi, "Descuento");
+    if descuento != ""{
+        let sub_num = match subtotal.parse::<f64>() {
+            Ok(val) => val,
+            Err(_) => 0.0,
+        };
+        let des_num = match descuento.parse::<f64>() {
+            Ok(val) => val,
+            Err(_) => 0.0,
+        };
+        let suma_sub = &format!("{:.2}",(sub_num-des_num));
+        web.eval(&format!("rellenar('{}', '{}', '{}')", "descuento", "Descuento", convertir_num_moneda(descuento)))?;
+        web.eval(&format!("rellenar('{}', '{}', '{}')", "subNeto", "Subtotal Neto", convertir_num_moneda(suma_sub)))?;
+    }
+    web.eval(&format!("rellenar('{}', '{}', '{}')", "total", "Total", convertir_num_moneda(total)))?;
+    mandar_datos_web_view(web, cfdi, "Moneda", "moneda", "Moneda")?;
+    mandar_datos_web_view(web, cfdi, "NoCertificado", "certEmi", "Numero de Certificado Emisór")?;
+    //si el tipo de cambio existe y es distinto de 1 hacer calculo  de total en pesos y mandarlo
+    let tipo_cambio = get_data(&cfdi, "TipoCambio");
+    if tipo_cambio != "1" && tipo_cambio != ""{
+        let tipo_cambio_num = match tipo_cambio.parse::<f64>() {
+            Ok(val) => val,
+            Err(_) => 0.0,
+        };
+        let total_num = match total.parse::<f64>() {
+            Ok(val) => val,
+            Err(_) => 0.0,
+        };
+
+        let total_pesos = format!("{}",total_num * tipo_cambio_num);
+        web.eval(&format!("rellenar('{}', '{}', '{}')", "tipoCambio", "Tipo de Cambio", convertir_num_moneda(tipo_cambio)))?;
+        web.eval(&format!("rellenar('{}', '{}', '{}')", "totalPesos", "Total en Pesos", convertir_num_moneda(&total_pesos)))?;
+    }
+    web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "selloEmi", "Sello Digital del CFDI", get_data(&cfdi, "Sello")))?;
+    //iterar cfdi
+    for cf in cfdi.children.iter(){
+        match cf.name.as_ref() {
+            "Emisor" => {
+                rfc_emi = get_data(cf, "Rfc");
+                mandar_datos_web_view(web, cf, "Rfc", "rfcEmi", "RFC")?;
+                mandar_datos_web_view(web, cf, "Nombre", "razonEmi", "Razón Social")?;
+                mandar_datos_web_view(web, cf, "RegimenFiscal", "regimenEmi", "Regimen Fiscal")?;
+            },
+            "Receptor" => {
+                rfc_rec = get_data(cf, "Rfc");
+                mandar_datos_web_view(web, cf, "Rfc", "rfcRec", "RFC")?;
+                mandar_datos_web_view(web, cf, "Nombre", "razonRec", "Razón Social")?;
+                mandar_datos_web_view(web, cf, "UsoCFDI", "usoCfdi", "Uso CFDI")?;
+            },
+            "Conceptos" => {
+
+            }, 
+            "Impuestos" => {
+                //sum_imp = cfdi_impuestos(&cf);
+            },
+            "Complemento" => {
+                for com in cf.children.iter() {
+                    match com.name.as_ref(){
+                        "TimbreFiscalDigital" => {
+                            mandar_datos_web_view(web, com, "FechaTimbrado", "fechaTimbre", "Fecha de Timbrado")?;
+                            mandar_datos_web_view(web, com, "UUID", "uuid", "Folio Fiscal UUID")?;
+                            mandar_datos_web_view(web, com, "NoCertificadoSAT", "certSat", "Numero de Certificado SAT")?;
+                            web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "selloSat", "Sello Digital del SAT", get_data(&com, "SelloSAT")))?;
+                            uuid = get_data(&com, "UUID");
+                            let mut leyenda = String::from(get_data(&com, "Leyenda"));
+                            if leyenda != ""{
+                                leyenda = format!("|{}", leyenda);
+                            }
+                            let cadena = format!("||{}|{}|{}|{}{}|{}|{}||", get_data(&com, "Version"), uuid, get_data(&com, "FechaTimbrado"), get_data(&com, "RfcProvCertif"), leyenda, get_data(&com, "SelloCFD"), get_data(&com, "NoCertificadoSAT") );
+                            web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "cadenaTim", "Cadena Original del Timbre",cadena))?;
+                        },
+                        "Pagos" => {
+                            //total_pagado = total_pagos(&com);
+                        },
+                        _ => println!("falta en Complemento: {:?}", com.name)
+                    }
+                }
+            },
+            _ => println!("falta en cfdi: {:?}", cf.name)
+        }
+    }
+    
+    /*
+    
+    let iva = &format!("{:.2}", (sum_imp.0).0);
+    let ieps = &format!("{:.2}", (sum_imp.0).1);
+    let ret_isr = &format!("{:.2}", (sum_imp.1).0);
+    let ret_iva = &format!("{:.2}", (sum_imp.1).1);
+    let ret_ieps = &format!("{:.2}", (sum_imp.1).2);
+    if tipo_comprobante != "P" && metodo_pago == "PUE" {
+        total_pagado = String::from(&total_pesos);
+    }
+    */
+    //imprimir qr
+    web.eval(&format!("ponerQr('https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id={}&re={}&rr={}&tt={}&fe={}')", uuid, rfc_emi, rfc_rec, total, sello_ocho))?;
+    //validar xml
+    
+    Ok(())
+}
+
+fn mandar_datos_web_view(web: &mut web_view::WebView<'_, ()>, cfdi: & Element, at_xml: &str, id_html: &str, tit_htlm: &str) ->  Result<(), web_view::Error>{
+    let dato =  get_data(&cfdi, at_xml);
+    if dato != "" {
+        web.eval(&format!("rellenar('{}', '{}', '{}')", id_html, tit_htlm, dato))?;
+    }
+    Ok(())
 }
 
 //función que me ayuda a leer los elementos del cfdi mas rapido
@@ -143,127 +269,32 @@ fn total_pagos(pagos: &Element) -> String{
     format!("{:.2}", monto_total)
 }
 
-//función que lea datos del cfdi y vaya mandandolas a funciones js para llenar
-fn datos_cfdi_(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(), web_view::Error> {
-    let mut uuid: &str = "";
-    let mut rfc_emi: &str = "";
-    let mut rfc_rec: &str = "";
-    let total = get_data(&cfdi, "Total");
-    let mut sello_ocho = get_data(&cfdi, "Sello");
-    sello_ocho = &sello_ocho[sello_ocho.len()-8..];
-
-
-    mandar_datos_web_view(web, cfdi, "Serie", "serie", "Serie")?;
-    mandar_datos_web_view(web, cfdi, "Folio", "folio", "Folio")?;
-    mandar_datos_web_view(web, cfdi, "Fecha", "fecha", "Fecha")?;
-    mandar_datos_web_view(web, cfdi, "TipoDeComprobante", "tipoComp", "Tipo Comprobante")?;
-    mandar_datos_web_view(web, cfdi, "LugarExpedicion", "lugarExp", "C.P. Expedición")?;
-    mandar_datos_web_view(web, cfdi, "Version", "versionCfdi", "Versión CFDI")?;
-    mandar_datos_web_view(web, cfdi, "MetodoPago", "metodoPago", "Metodo de Pago")?;
-    mandar_datos_web_view(web, cfdi, "FormaPago", "formaPago", "Forma de Pago")?;
-    mandar_datos_web_view(web, cfdi, "SubTotal", "subtotal", "Subtotal")?;
-    mandar_datos_web_view(web, cfdi, "Descuento", "descuento", "Descuento")?;
-    mandar_datos_web_view(web, cfdi, "Total", "total", "Total")?;
-    mandar_datos_web_view(web, cfdi, "Moneda", "moneda", "Moneda")?;
-    mandar_datos_web_view(web, cfdi, "NoCertificado", "certEmi", "Numero de Certificado Emisór")?;
-    //si el tipo de cambio existe y es distinto de 1 hacer calculo  de total en pesos y mandarlo
-    let tipo_cambio = get_data(&cfdi, "TipoCambio");
-    if tipo_cambio != "1" && tipo_cambio != ""{
-        let tipo_cambio_num = match tipo_cambio.parse::<f64>() {
-            Ok(val) => val,
-            Err(_) => 0.0,
-        };
-        let total_num = match total.parse::<f64>() {
-            Ok(val) => val,
-            Err(_) => 0.0,
-        };
-
-        let total_pesos = format!("{}",total_num * tipo_cambio_num);
-        web.eval(&format!("rellenar('{}', '<div class=\"datoCont\"><div class=\"datoTit\"><b>{}: </b></div><div class=\"datoD\">{}</div></div>')", "tipoCambio","Tipo de Cambio", tipo_cambio))?;
-        web.eval(&format!("rellenar('{}', '<div class=\"datoCont\"><div class=\"datoTit\"><b>{}: </b></div><div class=\"datoD\">{}</div></div>')", "totalPesos","Total en Pesos", total_pesos))?;
-    }
-    web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "selloEmi", "Sello Digital del CFDI", get_data(&cfdi, "Sello")))?;
-    //iterar cfdi
-    for cf in cfdi.children.iter(){
-        match cf.name.as_ref() {
-            "Emisor" => {
-                rfc_emi = get_data(cf, "Rfc");
-                mandar_datos_web_view(web, cf, "Rfc", "rfcEmi", "RFC")?;
-                mandar_datos_web_view(web, cf, "Nombre", "razonEmi", "Razón Social")?;
-                mandar_datos_web_view(web, cf, "RegimenFiscal", "regimenEmi", "Regimen Fiscal")?;
-            },
-            "Receptor" => {
-                rfc_rec = get_data(cf, "Rfc");
-                mandar_datos_web_view(web, cf, "Rfc", "rfcRec", "RFC")?;
-                mandar_datos_web_view(web, cf, "Nombre", "razonRec", "Razón Social")?;
-                mandar_datos_web_view(web, cf, "UsoCFDI", "usoCfdi", "Uso CFDI")?;
-            },
-            "Conceptos" => {
-
-            }, //para provisionar contabilidad
-            "Impuestos" => {
-                //sum_imp = cfdi_impuestos(&cf);
-            },
-            "Complemento" => {
-                for com in cf.children.iter() {
-                    match com.name.as_ref(){
-                        "TimbreFiscalDigital" => {
-                            mandar_datos_web_view(web, com, "FechaTimbrado", "fechaTimbre", "Fecha de Timbrado")?;
-                            mandar_datos_web_view(web, com, "UUID", "uuid", "Folio Fiscal UUID")?;
-                            mandar_datos_web_view(web, com, "NoCertificadoSAT", "certSat", "Numero de Certificado SAT")?;
-                            web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "selloSat", "Sello Digital del SAT", get_data(&com, "SelloSAT")))?;
-                            uuid = get_data(&com, "UUID");
-                            let mut leyenda = String::from(get_data(&com, "Leyenda"));
-                            if leyenda != ""{
-                                leyenda = format!("|{}", leyenda);
-                            }
-                            let cadena = format!("||{}|{}|{}|{}{}|{}|{}||", get_data(&com, "Version"), uuid, get_data(&com, "FechaTimbrado"), get_data(&com, "RfcProvCertif"), leyenda, get_data(&com, "SelloCFD"), get_data(&com, "NoCertificadoSAT") );
-                            web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "cadenaTim", "Cadena Original del Timbre",cadena))?;
-                        },
-                        "Pagos" => {
-                            //total_pagado = total_pagos(&com);
-                        },
-                        _ => println!("falta en Complemento: {:?}", com.name)
-                    }
-                }
-            },
-            _ => println!("falta en cfdi: {:?}", cf.name)
-        }
-    }
-    
-    /*
-    
-    let iva = &format!("{:.2}", (sum_imp.0).0);
-    let ieps = &format!("{:.2}", (sum_imp.0).1);
-    let ret_isr = &format!("{:.2}", (sum_imp.1).0);
-    let ret_iva = &format!("{:.2}", (sum_imp.1).1);
-    let ret_ieps = &format!("{:.2}", (sum_imp.1).2);
-    if tipo_comprobante != "P" && metodo_pago == "PUE" {
-        total_pagado = String::from(&total_pesos);
-    }
-     //datos a calcular
-    //calcular suma subtotal
-    let sub_num = match subtotal.parse::<f64>() {
-        Ok(val) => val,
-        Err(_) => 0.0,
+fn convertir_num_moneda(num: &str) -> String {
+    match num.parse::<f64>() {
+        Ok(val) => {
+            let mut millon = String::from("");
+            let mut mil = String::from("");
+            let mut menmil = String::from("");
+            let mut decimales = String::from("");
+            if val/1_000_000.0 > 1.0{
+                millon = format!("{}'",(val/1_000_000.0) as i64);
+                mil = format!("{},",(val/1_000.0) as i64);
+                menmil = format!("{}",val as i64);
+            }else if val/1_000.0 > 1.0{
+                mil = format!("{},",(val/1_000.0) as i64);
+                menmil = format!("{}",val as i64);
+            }else{
+                menmil = format!("{}",val as i64);
+            }
+            let decnum = ((val - (val as i64 ) as f64)*100.0) as i64;
+            if decnum > 10{
+                decimales = format!("{}", decnum);
+            }else if decnum > 0 {
+                decimales = format!("0{}", decnum);
+            }
+            return format!("${}{}{}.{}",millon, mil, menmil, decimales)
+        },
+        Err(_) => {}
     };
-    let des_num = match descuento.parse::<f64>() {
-        Ok(val) => val,
-        Err(_) => 0.0,
-    };
-    let suma_sub = &format!("{:.2}",(sub_num-des_num));
-    */
-    //imprimir qr
-    web.eval(&format!("ponerQr('https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?&id={}&re={}&rr={}&tt={}&fe={}')", uuid, rfc_emi, rfc_rec, total, sello_ocho))?;
-    //validar xml
-    
-    Ok(())
-}
-
-fn mandar_datos_web_view(web: &mut web_view::WebView<'_, ()>, cfdi: & Element, at_xml: &str, id_html: &str, tit_htlm: &str) ->  Result<(), web_view::Error>{
-    let dato =  get_data(&cfdi, at_xml);
-    if dato != "" {
-        web.eval(&format!("rellenar('{}', '{}', '{}')", id_html, tit_htlm, dato))?;
-    }
-    Ok(())
+    String::from("$0.00")
 }

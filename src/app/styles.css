@@ -16,7 +16,7 @@
   display: -webkit-flex;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
 }
 #container{
   margin: 1em 0;
@@ -34,7 +34,7 @@
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  justify-content: space-evenly;
+  justify-content: space-around;
   align-items: stretch;
   align-content: stretch;
   overflow: hidden;
@@ -45,87 +45,75 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-evenly;
+  justify-content: space-around;
   align-items: stretch;
   align-content: stretch;
 }
-
-#cabecera, #validar{
+#cabecera, #validar, #conceptos{
   flex-direction: column;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: space-evenly;
-  border: 1px solid #232323;
-  border-radius: 3px;
+  margin: 1% 0.7%;
 }
+
 .cabrows{
-  margin: 0.1em;
+  padding: 0.3%;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  justify-content: space-evenly;
+  justify-content: space-around;
   align-items: stretch;
   align-content: stretch;
-}
-.cabcols{
-  width: auto;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-  border: 1px dashed #232323;
+  border: 1px solid #232323;
+  border-radius: 3px;
+  flex-grow: 1;
 }
 #seriefol{
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
-  min-width: 30%;
+  justify-content: space-around;
+  min-width: 40%;
+  flex-grow: 1;
 }
 #serie, #folio{
   min-width: 30%;
+  flex-grow: 1;
 }
-#uuid{
-  min-width: 47%;
+#uuidCont{
+  min-width: 45%;
+  flex-grow: 1;
 }
-
 #fecha, #tipoComp, #lugarExp{
-  min-width: 30%;
+  min-width: 32%;
+  flex-grow: 1;
 }
-#emirec{
-  text-align: center !important;
+#emirec, #traslaCont{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
 }
 #emisorcont, #receptorcont, #trasAdiCont, #trasCont {
   width: 48%;
   border: 1px solid #232323;
   border-radius: 3px;
-  margin: 0.2em;
+  margin: 0.17%;
 }
 #emTitulo, #recTitulo{
-  border: 1px dashed #232323;
+  border: 0.5px dashed #333;
   border-radius: 3px;
 }
-#rfcEmi, #razonEmi, #regimenEmi{
+#rfcEmi, #razonEmi, #regimenEmi, #rfcRec, #razonRec, #usoCfdi{
   padding: 0.1em;
 }
 
-#rfcRec, #razonRec, #usoCfdi{
-  padding: 0.1em;
-}
-.concepCont{
-  width: 98%;
-  border: 1px solid #232323;
-  border-radius: 3px;
-}
-.cantidad{
-  width: 20%;
-
+.cantidad, .importeConcep{
+  width: 10%;
+  flex-grow: 1;
 }
 .descrip{
-  width: 58%;
+  min-width: 55%;
+  flex-grow: 3;
 }
-.importeConcep{
-  width: 20%;
-}
-
 #formaPago, #metodoPago, #tipoCambio, #moneda{
   text-align: left;
   padding: 0.1em;
@@ -155,18 +143,20 @@ img{
 .datoCont{
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: flex-start;
   padding: 0.1em;
 }
 .datoTit{
   min-width: 25%;
-  padding: 0 0.1em 0 0.05em;
+  padding: 0 0.1em 0 0.3%;
   text-align: left;
+  flex-grow: 1;
 }
 .datoD{
-  text-align: left;
-  min-width: 20%;
+  text-align: center;
+  min-width: 40%;
   padding: 0 0 0 0.5em;
+  flex-grow: 2;
 }
 @media (max-width: 750px) { 
   *{
