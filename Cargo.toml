@@ -11,6 +11,7 @@ web-view = { git = "https://github.com/Boscop/web-view", features = ["edge"] }
 #web-view = "^0.6"
 #web-view = { version = "^0.6", features = ["edge"]} #si quiero usar edge , features = ["edge"] }
 tinyfiledialogs = "3.3.9"
+format_money = "0.1.0"
 
 
 [target.'cfg(windows)'.build-dependencies]

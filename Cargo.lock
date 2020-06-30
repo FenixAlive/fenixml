@@ -41,6 +41,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1be3409f94d7bdceeb5f5fac551039d9b3f00e25da7a74fc4d33400a0d96368"
 
 [[package]]
+name = "format_money"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c929e244ae88ec81d3622977ab7dd7a4e24cb9b9959479fb756273b4055b77a"
+
+[[package]]
 name = "gdk-pixbuf-sys"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -202,6 +208,7 @@ checksum = "c9232eb53352b4442e40d7900465dfc534e8cb2dc8f18656fcb2ac16112b5593"
 name = "ver_xml_cfdi"
 version = "0.1.0"
 dependencies = [
+ "format_money",
  "tinyfiledialogs",
  "web-view",
  "winres",

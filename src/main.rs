@@ -3,32 +3,40 @@ use web_view::*;
 use tinyfiledialogs as tfd;
 use std::{env, fs, path::Path};
 use xmltree::Element;
+use format_money::format_money;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() == 2 {
-        let html = format!(include_str!("./app/app.html"),
-                    css = include_str!("./app/styles.css"),
-                    qrcode = include_str!("./app/qrcode.min.js"),
-                    javascript = include_str!("./app/app.js")
-                );
-        if let Some(cfdi) = leer_cfdi(Path::new(&args[1])) {
-            web_view::builder()
-            .title("Visor CFDI 3.3 desde XML")
-            .content(Content::Html(html))
-            .size(800, 500)
-            .resizable(true)
-            .debug(true)
-            .user_data(())
-            .invoke_handler(|webview, arg| {
-                if arg == "inicio" {
-                    datos_cfdi_(webview, &cfdi)?;
-                }
-                Ok(())
-            })
-            .run()
-            .unwrap();
-        }
+    let mut open_file: String = String::new();
+    if args.len() > 1 {
+        open_file = args[1].to_owned();
+    }else{
+        match tfd::open_file_dialog("Elige XML de CFDI a ver", "", None){
+            Some(file) => {open_file = file},
+            None => {tfd::message_box_yes_no("No elegiste ningun archivo", "¿Quieres buscar de nuevo?", tfd::MessageBoxIcon::Question, tfd::YesNo::No);}
+        };
+    }
+    let html = format!(include_str!("./app/app.html"),
+                css = include_str!("./app/styles.css"),
+                qrcode = include_str!("./app/qrcode.min.js"),
+                javascript = include_str!("./app/app.js")
+            );
+    if let Some(cfdi) = leer_cfdi(Path::new(&open_file)) {
+        web_view::builder()
+        .title("Visor CFDI 3.3 desde XML")
+        .content(Content::Html(html))
+        .size(800, 500)
+        .resizable(true)
+        .debug(true)
+        .user_data(())
+        .invoke_handler(|webview, arg| {
+            if arg == "inicio" {
+                datos_cfdi_(webview, &cfdi)?;
+            }
+            Ok(())
+        })
+        .run()
+        .unwrap();
     }
 }
 
@@ -79,8 +87,6 @@ fn datos_cfdi_(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(
     let mut rfc_emi: &str = "";
     let mut rfc_rec: &str = "";
     let total = get_data(&cfdi, "Total");
-    let mut sello_ocho = get_data(&cfdi, "Sello");
-    sello_ocho = &sello_ocho[sello_ocho.len()-8..];
     mandar_datos_web_view(web, cfdi, "Serie", "serie", "Serie")?;
     mandar_datos_web_view(web, cfdi, "Folio", "folio", "Folio")?;
     mandar_datos_web_view(web, cfdi, "Fecha", "fecha", "Fecha")?;
@@ -90,7 +96,7 @@ fn datos_cfdi_(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(
     mandar_datos_web_view(web, cfdi, "MetodoPago", "metodoPago", "Metodo de Pago")?;
     mandar_datos_web_view(web, cfdi, "FormaPago", "formaPago", "Forma de Pago")?;
     let subtotal = get_data(&cfdi, "SubTotal");
-    web.eval(&format!("rellenar('{}', '{}', '{}')", "subtotal", "Subtotal", convertir_num_moneda(subtotal)))?;
+    web.eval(&format!("rellenar('{}', '{}', '{}')", "subtotal", "Subtotal", format_money(subtotal)))?;
     //si hay descuento mostrar linea de neto subtotal
     let descuento = get_data(&cfdi, "Descuento");
     if descuento != ""{
@@ -103,10 +109,10 @@ fn datos_cfdi_(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(
             Err(_) => 0.0,
         };
         let suma_sub = &format!("{:.2}",(sub_num-des_num));
-        web.eval(&format!("rellenar('{}', '{}', '{}')", "descuento", "Descuento", convertir_num_moneda(descuento)))?;
-        web.eval(&format!("rellenar('{}', '{}', '{}')", "subNeto", "Subtotal Neto", convertir_num_moneda(suma_sub)))?;
+        web.eval(&format!("rellenar('{}', '{}', '{}')", "descuento", "Descuento", format_money(descuento)))?;
+        web.eval(&format!("rellenar('{}', '{}', '{}')", "subNeto", "Subtotal Neto", format_money(suma_sub)))?;
     }
-    web.eval(&format!("rellenar('{}', '{}', '{}')", "total", "Total", convertir_num_moneda(total)))?;
+    web.eval(&format!("rellenar('{}', '{}', '{}')", "total", "Total", format_money(total)))?;
     mandar_datos_web_view(web, cfdi, "Moneda", "moneda", "Moneda")?;
     mandar_datos_web_view(web, cfdi, "NoCertificado", "certEmi", "Numero de Certificado Emisór")?;
     //si el tipo de cambio existe y es distinto de 1 hacer calculo  de total en pesos y mandarlo
@@ -122,10 +128,9 @@ fn datos_cfdi_(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(
         };
 
         let total_pesos = format!("{}",total_num * tipo_cambio_num);
-        web.eval(&format!("rellenar('{}', '{}', '{}')", "tipoCambio", "Tipo de Cambio", convertir_num_moneda(tipo_cambio)))?;
-        web.eval(&format!("rellenar('{}', '{}', '{}')", "totalPesos", "Total en Pesos", convertir_num_moneda(&total_pesos)))?;
+        web.eval(&format!("rellenar('{}', '{}', '{}')", "tipoCambio", "Tipo de Cambio", format_money(tipo_cambio)))?;
+        web.eval(&format!("rellenar('{}', '{}', '{}')", "totalPesos", "Total en Pesos", format_money(&total_pesos)))?;
     }
-    web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "selloEmi", "Sello Digital del CFDI", get_data(&cfdi, "Sello")))?;
     //iterar cfdi
     for cf in cfdi.children.iter(){
         match cf.name.as_ref() {
@@ -152,10 +157,10 @@ fn datos_cfdi_(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(
                     match com.name.as_ref(){
                         "TimbreFiscalDigital" => {
                             mandar_datos_web_view(web, com, "FechaTimbrado", "fechaTimbre", "Fecha de Timbrado")?;
-                            mandar_datos_web_view(web, com, "UUID", "uuid", "Folio Fiscal UUID")?;
                             mandar_datos_web_view(web, com, "NoCertificadoSAT", "certSat", "Numero de Certificado SAT")?;
                             web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "selloSat", "Sello Digital del SAT", get_data(&com, "SelloSAT")))?;
                             uuid = get_data(&com, "UUID");
+                            web.eval(&format!("rellenarCabe('{}', '{}', '{}')", "uuid", "Folio Fiscal UUID",uuid))?;
                             let mut leyenda = String::from(get_data(&com, "Leyenda"));
                             if leyenda != ""{
                                 leyenda = format!("|{}", leyenda);
@@ -185,8 +190,10 @@ fn datos_cfdi_(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(
         total_pagado = String::from(&total_pesos);
     }
     */
+    let sello = get_data(&cfdi, "Sello");
+    web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "selloEmi", "Sello Digital del CFDI", sello))?;
     //imprimir qr
-    web.eval(&format!("ponerQr('https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id={}&re={}&rr={}&tt={}&fe={}')", uuid, rfc_emi, rfc_rec, total, sello_ocho))?;
+    web.eval(&format!("ponerQr('https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id={}&re={}&rr={}&tt={}&fe={}')", uuid, rfc_emi, rfc_rec, total, &sello[sello.len()-8..]))?;
     //validar xml
     
     Ok(())
@@ -267,34 +274,4 @@ fn total_pagos(pagos: &Element) -> String{
         monto_total += evaluar_importe(&pago, "Monto");
     }
     format!("{:.2}", monto_total)
-}
-
-fn convertir_num_moneda(num: &str) -> String {
-    match num.parse::<f64>() {
-        Ok(val) => {
-            let mut millon = String::from("");
-            let mut mil = String::from("");
-            let mut menmil = String::from("");
-            let mut decimales = String::from("");
-            if val/1_000_000.0 > 1.0{
-                millon = format!("{}'",(val/1_000_000.0) as i64);
-                mil = format!("{},",(val/1_000.0) as i64);
-                menmil = format!("{}",val as i64);
-            }else if val/1_000.0 > 1.0{
-                mil = format!("{},",(val/1_000.0) as i64);
-                menmil = format!("{}",val as i64);
-            }else{
-                menmil = format!("{}",val as i64);
-            }
-            let decnum = ((val - (val as i64 ) as f64)*100.0) as i64;
-            if decnum > 10{
-                decimales = format!("{}", decnum);
-            }else if decnum > 0 {
-                decimales = format!("0{}", decnum);
-            }
-            return format!("${}{}{}.{}",millon, mil, menmil, decimales)
-        },
-        Err(_) => {}
-    };
-    String::from("$0.00")
 }
