@@ -5,39 +5,56 @@ use std::{env, fs, path::Path};
 use xmltree::Element;
 use format_money::format_money;
 
+//hacer enums para tipo de comprobante, regimen fiscal, uso CFDI y metodo de pago
+
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let mut open_file: String = String::new();
-    if args.len() > 1 {
-        open_file = args[1].to_owned();
-    }else{
-        match tfd::open_file_dialog("Elige XML de CFDI a ver", "", None){
-            Some(file) => {open_file = file},
-            None => {tfd::message_box_yes_no("No elegiste ningun archivo", "¿Quieres buscar de nuevo?", tfd::MessageBoxIcon::Question, tfd::YesNo::No);}
-        };
-    }
     let html = format!(include_str!("./app/app.html"),
                 css = include_str!("./app/styles.css"),
                 qrcode = include_str!("./app/qrcode.min.js"),
                 javascript = include_str!("./app/app.js")
             );
-    if let Some(cfdi) = leer_cfdi(Path::new(&open_file)) {
-        web_view::builder()
-        .title("Visor CFDI 3.3 desde XML")
-        .content(Content::Html(html))
-        .size(800, 500)
-        .resizable(true)
-        .debug(true)
-        .user_data(())
-        .invoke_handler(|webview, arg| {
-            if arg == "inicio" {
-                datos_cfdi_(webview, &cfdi)?;
+    web_view::builder()
+    .title("Visor CFDI 3.3 desde XML")
+    .content(Content::Html(html))
+    .size(800, 500)
+    .resizable(true)
+    .debug(true)
+    .user_data(())
+    .invoke_handler(|webview, arg| {
+        if arg == "inicio" {
+            let mut open_file: String = String::new();
+            if args.len() > 1 {
+                open_file = args[1].to_owned();
+            }else{
+                let mut buscar = tfd::YesNo::Yes;
+                while buscar == tfd::YesNo::Yes { 
+                    match tfd::open_file_dialog("Elige XML de CFDI a ver", "", None){
+                        Some(file) => {
+                            open_file = file;
+                            buscar = tfd::YesNo::No;
+                        },
+                        None => {    
+                            buscar = tfd::message_box_yes_no("No elegiste ningun archivo", "¿Quieres buscar de nuevo?", tfd::MessageBoxIcon::Question, tfd::YesNo::No);
+                            if buscar == tfd::YesNo::No{
+                                webview.exit();
+                                return Ok(());
+                            }
+                        }
+                    }
+                }
             }
-            Ok(())
-        })
-        .run()
-        .unwrap();
-    }
+            if let Some(cfdi) = leer_cfdi(Path::new(&open_file)) {
+                datos_cfdi(webview, &cfdi)?;
+            }else{
+                webview.exit();
+                return Ok(());
+            }
+        }
+        Ok(())
+    })
+    .run()
+    .unwrap();
 }
 
 //función que implementa el leer un cfdi y validarlo de forma simple
@@ -71,27 +88,29 @@ fn leer_cfdi(path: &Path) -> Option<Element>{
             Err(e) => {
                 tfd::message_box_ok("Error", "Comprobante no valido", tfd::MessageBoxIcon::Error);
                 eprintln!("Comprobante no valido {}", e);
-                return None;
                 }
         }
     }else{
         tfd::message_box_ok("Error", "Extensión del archivo no valida", tfd::MessageBoxIcon::Error);
         eprintln!("Extensión del archivo no valida");
     }
-    return None;
+    return None
 }
 
 //función que lea datos del cfdi y vaya mandandolas a funciones js para llenar
-fn datos_cfdi_(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(), web_view::Error> {
+fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(), web_view::Error> {
     let mut uuid: &str = "";
     let mut rfc_emi: &str = "";
     let mut rfc_rec: &str = "";
     let total = get_data(&cfdi, "Total");
-    mandar_datos_web_view(web, cfdi, "Serie", "serie", "Serie")?;
-    mandar_datos_web_view(web, cfdi, "Folio", "folio", "Folio")?;
-    mandar_datos_web_view(web, cfdi, "Fecha", "fecha", "Fecha")?;
-    mandar_datos_web_view(web, cfdi, "TipoDeComprobante", "tipoComp", "Tipo Comprobante")?;
-    mandar_datos_web_view(web, cfdi, "LugarExpedicion", "lugarExp", "C.P. Expedición")?;
+    mandar_datos_web_view_cabe(web, cfdi, "Serie", "serie", "Serie")?;
+    mandar_datos_web_view_cabe(web, cfdi, "Folio", "folio", "Folio")?;
+    let fecha = get_data(&cfdi, "Fecha");
+    let fecha = separar_datetime(fecha);
+    let fecha = format!("{} a las {} hrs", fecha.0, fecha.1);
+    web.eval(&format!("rellenarCabe('{}', '{}', '{}')", "fecha", "Fecha",fecha))?;
+    mandar_datos_web_view_cabe(web, cfdi, "TipoDeComprobante", "tipoComp", "Tipo Comprobante")?;
+    mandar_datos_web_view_cabe(web, cfdi, "LugarExpedicion", "lugarExp", "C.P. Expedición")?;
     mandar_datos_web_view(web, cfdi, "Version", "versionCfdi", "Versión CFDI")?;
     mandar_datos_web_view(web, cfdi, "MetodoPago", "metodoPago", "Metodo de Pago")?;
     mandar_datos_web_view(web, cfdi, "FormaPago", "formaPago", "Forma de Pago")?;
@@ -156,7 +175,10 @@ fn datos_cfdi_(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(
                 for com in cf.children.iter() {
                     match com.name.as_ref(){
                         "TimbreFiscalDigital" => {
-                            mandar_datos_web_view(web, com, "FechaTimbrado", "fechaTimbre", "Fecha de Timbrado")?;
+                            let fecha = get_data(com, "FechaTimbrado");
+                            let fecha = separar_datetime(fecha);
+                            let fecha = format!("{} a las {} hrs", fecha.0, fecha.1);
+                            web.eval(&format!("rellenar('{}', '{}', '{}')", "fechaTimbre", "Fecha de Timbrado",fecha))?;
                             mandar_datos_web_view(web, com, "NoCertificadoSAT", "certSat", "Numero de Certificado SAT")?;
                             web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "selloSat", "Sello Digital del SAT", get_data(&com, "SelloSAT")))?;
                             uuid = get_data(&com, "UUID");
@@ -207,6 +229,14 @@ fn mandar_datos_web_view(web: &mut web_view::WebView<'_, ()>, cfdi: & Element, a
     Ok(())
 }
 
+fn mandar_datos_web_view_cabe(web: &mut web_view::WebView<'_, ()>, cfdi: & Element, at_xml: &str, id_html: &str, tit_htlm: &str) ->  Result<(), web_view::Error>{
+    let dato =  get_data(&cfdi, at_xml);
+    if dato != "" {
+        web.eval(&format!("rellenarCabe('{}', '{}', '{}')", id_html, tit_htlm, dato))?;
+    }
+    Ok(())
+}
+
 //función que me ayuda a leer los elementos del cfdi mas rapido
 fn get_data<'a>(cfdi: &'a Element, key: &str) -> &'a str {
     match cfdi.attributes.get(key) {
@@ -221,7 +251,7 @@ fn get_data<'a>(cfdi: &'a Element, key: &str) -> &'a str {
     };
 }
 
-fn cfdi_impuestos(cf: &Element) -> ((f64, f64), (f64, f64, f64)) {
+fn _cfdi_impuestos(cf: &Element) -> ((f64, f64), (f64, f64, f64)) {
     // impuestos = (traslado(iva, ieps), retencion(isr, iva, ieps))
     let mut impuestos = ((0.0, 0.0), (0.0, 0.0, 0.0));
     for im in cf.children.iter() {
@@ -274,4 +304,9 @@ fn total_pagos(pagos: &Element) -> String{
         monto_total += evaluar_importe(&pago, "Monto");
     }
     format!("{:.2}", monto_total)
+}
+
+fn separar_datetime(datetime: &str) -> (String, String){
+    let dt_sp: Vec<&str> = datetime.split("T").collect();
+    (dt_sp[0].to_string(), dt_sp[1].to_string())
 }
