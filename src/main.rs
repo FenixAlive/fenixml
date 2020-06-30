@@ -217,7 +217,7 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<()
     //imprimir qr
     web.eval(&format!("ponerQr('https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id={}&re={}&rr={}&tt={}&fe={}')", uuid, rfc_emi, rfc_rec, total, &sello[sello.len()-8..]))?;
     //validar xml
-    
+    web.eval("mostrarApp(true)")?;
     Ok(())
 }
 

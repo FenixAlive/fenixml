@@ -1,11 +1,22 @@
     'use strict'
-    
-    //document.getElementById("conceptos").style.visibility="hidden"
+    document.getElementById("appContainer").style.visibility="hidden"
+    document.getElementById("conceptos").style.visibility="hidden"
     var htmlHide = {
+      app: true,
       conceptos: true
     }
 
     window.external.invoke("inicio");
+
+    function mostrarApp(isIt){
+      if (htmlHide.app && isIt){
+        document.getElementById("appContainer").style.visibility="visible";
+        htmlHide.app
+      }else if(!htmlHide.app && !isIt){
+        document.getElementById("appContainer").style.visibility="hidden";
+      }
+      htmlHide.app= !htmlHide.app;
+    }
     
     function rellenar(id, titulo, data){
       if(data != ""){
