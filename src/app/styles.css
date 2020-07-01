@@ -80,10 +80,11 @@
   min-width: 30%;
   flex-grow: 1;
 }
-#emirec, #traslaCont{
+#emirec, #traslaCont, .datosAdCol{
   display: flex;
   flex-direction: row;
   justify-content: space-around;
+  flex-grow: 1;
 }
 #emisorcont, #receptorcont, #trasAdiCont, #trasCont {
   width: 48%;
@@ -92,20 +93,22 @@
   margin: 0.17%;
 }
 #emTitulo, #recTitulo{
-  border: 0.5px dashed #333;
+  border-bottom: 0.5px dashed #333;
   border-radius: 3px;
 }
 #rfcEmi, #razonEmi, #regimenEmi, #rfcRec, #razonRec, #usoCfdi{
   padding: 0.1em;
 }
 
-.cantidad, .importeConcep{
+.cantidad, .importeConcep, .descConcep, .precioUni{
   width: 10%;
   flex-grow: 1;
+  border: 0.5px dashed #333;
 }
 .descrip{
-  min-width: 55%;
+  min-width: 50%;
   flex-grow: 3;
+  border: 0.5px dashed #333;
 }
 #formaPago, #metodoPago, #tipoCambio, #moneda{
   text-align: left;
@@ -153,6 +156,34 @@ img{
   min-width: 30%;
   padding: 0 0.1em 0 0.5em;
   flex-grow: 2;
+}
+#validar{
+  padding: 0 !important;
+}
+.success{
+  background-color: #35c7a3;
+}
+.warning{
+  background-color: #e9cc27;
+}
+.danger{
+  background-color: #e73f77;
+}
+.padText{
+  padding: 0.3em 0.3em;
+}
+.concepDet{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex-grow: 1;
+}
+.trasConcepCont, .retConcepCont{
+  padding: 0.23em 0;
+}
+.bordeUpDash{
+  border-top: 0.7px dashed #333;
+  border-radius: 3px;
 }
 @media (max-width: 750px) { 
   *{
