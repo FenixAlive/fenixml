@@ -3,7 +3,7 @@
   margin: 0;
   font-size: 12px;
   color: #232323;
-  font-family: Sans, Serif, 'Courier New', Courier, monospace;
+  font-family: Serif, 'Courier New', Courier, monospace;
   text-align: center;
 }
 #appContainer{
@@ -44,15 +44,15 @@
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: space-evenly;
-  margin: 1% 0.7%;
+  margin: 0.7% 0.7%;
 }
 .borde{
   border: 1px solid #232323;
   border-radius: 3px;
 }
 .cabrows{
-  margin: 0.3% 0.1%;
-  padding: 0.2%;
+  margin: 0.17em 0.23em;
+  padding: 0.2em;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -85,12 +85,21 @@
   flex-direction: row;
   justify-content: space-around;
   flex-grow: 1;
+  margin: 0.3% 0.7%;
 }
 #emisorcont, #receptorcont, #trasAdiCont, #trasCont {
-  width: 48%;
+  min-width: 40%;
   border: 1px solid #232323;
   border-radius: 3px;
-  margin: 0.17%;
+  flex-grow: 1;
+  margin: 0.3em;
+}
+.concepBase{
+  margin-top: 0.7em !important;
+  margin-bottom: 0;
+}
+#trasAdiCont{
+  min-width: 37% !important;
 }
 #emTitulo, #recTitulo{
   border-bottom: 0.5px dashed #333;
@@ -103,12 +112,10 @@
 .cantidad, .importeConcep, .descConcep, .precioUni{
   width: 10%;
   flex-grow: 1;
-  border: 0.5px dashed #333;
 }
 .descrip{
   min-width: 50%;
   flex-grow: 3;
-  border: 0.5px dashed #333;
 }
 #formaPago, #metodoPago, #tipoCambio, #moneda{
   text-align: left;
@@ -137,24 +144,54 @@ img{
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  padding: 0.1em;
+  padding: 0.1em 0.2em;
+  flex-grow: 1;
+  min-width: 12%;
+}
+.datoContImp{
+  min-width: 19% !important;
+  flex-grow: 1;
+}
+.datoContCenter{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 0.1em 0.2em;
+  flex-grow: 1;
+  min-width: 12%;
+}
+.datoContTrasRetCabe{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 0.1em 0 0 0.3em;
+  flex-grow: 1;
+  min-width: 13%;
+}
+.datoContTrasRet{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 0.1em 0 0 0.3em;
+  flex-grow: 1;
+  width: 16.6%;
 }
 .datoTit{
-  min-width: 25%;
-  padding: 0 0.1em 0 0.3%;
+  min-width: 10%;
+  padding: 0 0.1em 0 0.1em;
   text-align: left;
   flex-grow: 1;
 }
 .datoD{
   text-align: right;
-  min-width: 30%;
-  padding: 0 1em 0 0.1em;
+  min-width: 10%;
+  padding: 0 0.3em 0 0.1em;
   flex-grow: 2;
 }
 .datoCab{
   text-align: left;
-  min-width: 30%;
-  padding: 0 0.1em 0 0.5em;
+  min-width: 10%;
+  padding: 0 0.1em 0 0.3em;
   flex-grow: 2;
 }
 #validar{
@@ -167,7 +204,7 @@ img{
   background-color: #e9cc27;
 }
 .danger{
-  background-color: #e73f77;
+  background-color: #e73f79;
 }
 .padText{
   padding: 0.3em 0.3em;
@@ -184,6 +221,31 @@ img{
 .bordeUpDash{
   border-top: 0.7px dashed #333;
   border-radius: 3px;
+}
+.bordeDownDash{
+  border-bottom: 0.7px dashed #333;
+  border-radius: 3px;
+}
+.pointer{
+  background-color: #def;
+  box-shadow: 0.7px .07px 0.7px #5379a3;
+}
+.pointerClick{
+  background-color: #7ebfff;
+}
+.pointer:hover, .pointerClick:hover{
+  cursor: pointer;
+  box-shadow: 1.5px 1.5px 1.5px #3e6793;
+  background-color: #57a3d7;
+}
+.datoContTrasRetConcep{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 0.1em;
+}
+.trasRetConcepCont, .datosAdCol{
+  margin: 0.09em 0.3em !important;
 }
 @media (max-width: 750px) { 
   *{

@@ -6,7 +6,8 @@ use xmltree::Element;
 use format_money::format_money;
 use ureq;
 
-//hacer enums para tipo de comprobante, regimen fiscal, uso CFDI y metodo de pago
+
+//hacer funcion para tipo de comprobante, regimen fiscal, uso CFDI y metodo de pago o tomar data de archivos csv pero haria mas lenta la aplicación y tardo mas en terminarla
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -18,7 +19,7 @@ fn main() {
     web_view::builder()
     .title("Visor CFDI 3.3 desde XML")
     .content(Content::Html(html))
-    .size(900, 600)
+    .size(590, 570)
     .resizable(true)
     .debug(true)
     .user_data(())
@@ -135,7 +136,7 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(S
             Err(_) => 0.0,
         };
         let suma_sub = &format!("{:.2}",(sub_num-des_num));
-        web.eval(&format!("rellenar('{}', '{}', '{}')", "descuento", "Descuento", format_money(descuento)))?;
+        web.eval(&format!("rellenar('{}', '{}', '- {}')", "descuento", "Descuento", format_money(descuento)))?;
         web.eval(&format!("rellenar('{}', '{}', '{}')", "subNeto", "Subtotal Neto", format_money(suma_sub)))?;
     }
     web.eval(&format!("rellenar('{}', '{}', '{}')", "total", "Total", format_money(total)))?;
@@ -175,22 +176,21 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(S
                 web.eval("showConcep(true)")?;
                 let mut idx_concep = 0;
                 for concep in cf.children.iter() {
-                    web.eval(&format!("addConcep(`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`)", 
+                    web.eval(&format!("addConcep(`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `- {}`)", 
                             idx_concep, get_data(&concep, "Cantidad"), get_data(&concep, "ClaveUnidad"), get_data(&concep, "Unidad"),
                             get_data(&concep, "ClaveProdServ"), get_data(&concep, "NoIdentificacion"), format_money(get_data(&concep, "ValorUnitario")), 
                             get_data(&concep, "Descripcion"), format_money(get_data(&concep, "Importe")), format_money(get_data(&concep, "Descuento"))))?;
                     for impu_concep in concep.children.iter(){
                         match impu_concep.name.as_ref(){
                             "Impuestos" =>{
+                                let mut id_imp = 0;
+                                web.eval(&format!("trasRetConcepCabe(`{}`)", idx_concep))?;
                                 for tras_ret in impu_concep.children.iter(){
-                                    //mandar a la funcion el tras_ret.name para en javascript renderizarlo
-                                    //println!("{}",tras_ret.name);
                                     for tr_re in tras_ret.children.iter(){
-                                        //Importe
-                                        //TasaOCuota
-                                        //TipoFactor
-                                        //Impuesto
-                                        //Base
+                                        web.eval(&format!("addTrasRetConcep('{}', `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`)", 
+                                                idx_concep, id_imp, tras_ret.name, format_money(get_data(&tr_re, "Importe")), get_data(&tr_re, "TasaOCuota"),
+                                                get_data(&tr_re, "TipoFactor"), completar_impuesto(get_data(&tr_re, "Impuesto")), format_money(get_data(&tr_re, "Base"))))?;
+                                        id_imp += 1;
                                     }
                                 }
                             },
@@ -201,25 +201,19 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(S
                 }
             }, 
             "Impuestos" => {
-                //TotalImpuestosTrasladados
-                //TotalImpuestosRetenidos
+                let mut idx_imp = 0;
+                web.eval("impuestosCabe()")?;
                 for tras_ret in cf.children.iter() {
-                    match tras_ret.name.as_ref(){
-                        "Traslados" =>{
-                            for traslado in tras_ret.children.iter(){
-                                //Importe
-                                //TasaOCuota
-                                //TipoFactor
-                                //Base
-                            }
-                        },
-                        "Retenciones" => {
-                            for retencion in tras_ret.children.iter(){
-                                //Importe
-                                //Impuesto
-                            }
-                        },
-                        _ => println!("falta en tras_ret: {:?}", tras_ret.name)
+                    for tr_re in tras_ret.children.iter(){
+                        //tr_re.name
+                        //Impuesto
+                        //TipoFactor
+                        //TasaOCuota
+                        //Importe
+                        web.eval(&format!("addTrasRetImp(`{}`, `{}`, `{}`, `{}`, `{}`, `{}`)", 
+                                            idx_imp, tr_re.name, completar_impuesto(get_data(&tr_re, "Impuesto")), 
+                                            get_data(&tr_re, "TipoFactor"), get_data(&tr_re, "TasaOCuota"), format_money(get_data(&tr_re, "Importe"))))?;
+                        idx_imp += 1;
                     }
                 }
             },
@@ -239,7 +233,9 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(S
                             if leyenda != ""{
                                 leyenda = format!("|{}", leyenda);
                             }
-                            let cadena = format!("||{}|{}|{}|{}{}|{}|{}||", get_data(&com, "Version"), uuid, fecha_tim, get_data(&com, "RfcProvCertif"), leyenda, get_data(&com, "SelloCFD"), get_data(&com, "NoCertificadoSAT") );
+                            let cadena = format!("||{}|{}|{}|{}{}|{}|{}||", get_data(&com, "Version"), 
+                                                uuid, fecha_tim, get_data(&com, "RfcProvCertif"), leyenda, 
+                                                get_data(&com, "SelloCFD"), get_data(&com, "NoCertificadoSAT"));
                             web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "cadenaTim", "Cadena Original del Timbre",cadena))?;
                         },
                         "Pagos" => {
@@ -252,20 +248,22 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(S
             _ => println!("falta en cfdi: {:?}", cf.name)
         }
     }
-    
     let sello = get_data(&cfdi, "Sello");
     web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "selloEmi", "Sello Digital del CFDI", sello))?;
     //imprimir qr
-    web.eval(&format!("ponerQr('https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id={}&re={}&rr={}&tt={}&fe={}')", uuid, rfc_emi, rfc_rec, total, &sello[sello.len()-8..]))?;
+    web.eval(&format!("ponerQr('https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?id={}&re={}&rr={}&tt={}&fe={}')", 
+                        uuid, rfc_emi, rfc_rec, total, &sello[sello.len()-8..]))?;
     Ok((rfc_emi.to_string(), rfc_rec.to_string(), total.to_string(), uuid.to_string()))
 }
 
+//envia los datos primarios del cfdi al webview
 fn mandar_datos_web_view(web: &mut web_view::WebView<'_, ()>, cfdi: & Element, at_xml: &str, id_html: &str, tit_htlm: &str) ->  Result<String, web_view::Error>{
     let dato =  get_data(&cfdi, at_xml);
     web.eval(&format!("rellenar('{}', '{}', '{}')", id_html, tit_htlm, dato))?;
     Ok(dato.to_string())
 }
 
+//ver si puedo juntar las dos para cabecera y rellenar normal
 fn mandar_datos_web_view_cabe(web: &mut web_view::WebView<'_, ()>, cfdi: & Element, at_xml: &str, id_html: &str, tit_htlm: &str) ->  Result<String, web_view::Error>{
     let dato =  get_data(&cfdi, at_xml);
     web.eval(&format!("rellenarCabe('{}', '{}', '{}')", id_html, tit_htlm, dato))?;
@@ -280,12 +278,23 @@ fn get_data<'a>(cfdi: &'a Element, key: &str) -> &'a str {
             return d;
             },
         None => {
-            println!("{} no esta", key);
+            //println!("{} no esta en get_data", key);
             return "";
         }
     };
 }
 
+//completa el tipo de impuesto
+fn completar_impuesto(imp: &str) -> String{
+    let val;
+    match imp{
+        "001"=>{val = "ISR";},
+        "002"=>{val = "IVA";},
+        "003"=>{val = "IEPS";},
+        _=>{return imp.to_string()}
+    }
+    format!("{}-{}",imp, val)
+}
 
 fn evaluar_importe(imp: &Element, att: &str) -> f64{
     if let Some(val) = imp.attributes.get(att) {
@@ -319,6 +328,7 @@ fn validar_cfdi_sat(web: &mut web_view::WebView<'_, ()>, rfc_emit: &str, rfc_rec
     .set("Content-type", "text/xml;charset=\"utf-8\"")
     .set("Accept", "value: V")
     .set("SOAPAction", "http://tempuri.org/IConsultaCFDIService/Consulta")
+    .timeout_connect(10_000) 
     .send_string(&cuerpo);
     //println!("{:?}", resp);
     if resp.ok() {
