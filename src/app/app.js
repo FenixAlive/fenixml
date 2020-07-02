@@ -132,6 +132,9 @@ function addTrasRetImp(idx, tipo, impuesto, factor, tasa, importe){
   if(tipo == "Retencion"){
     importe = "- "+importe;
   }
+  if (factor == "Tasa"){
+    tasa = (Number(tasa)*100).toFixed(4)+"%";
+  }
   document.getElementById(`impCont_${idx-1}`).insertAdjacentHTML("afterend", `<div class="datoCont impCont datosAdCol" id="impCont_${idx}">
                                                                                 <div class="datoContImp">${tipo}</div>
                                                                                 <div class="datoContImp">${impuesto}</div>

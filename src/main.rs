@@ -205,11 +205,6 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(S
                 web.eval("impuestosCabe()")?;
                 for tras_ret in cf.children.iter() {
                     for tr_re in tras_ret.children.iter(){
-                        //tr_re.name
-                        //Impuesto
-                        //TipoFactor
-                        //TasaOCuota
-                        //Importe
                         web.eval(&format!("addTrasRetImp(`{}`, `{}`, `{}`, `{}`, `{}`, `{}`)", 
                                             idx_imp, tr_re.name, completar_impuesto(get_data(&tr_re, "Impuesto")), 
                                             get_data(&tr_re, "TipoFactor"), get_data(&tr_re, "TasaOCuota"), format_money(get_data(&tr_re, "Importe"))))?;
