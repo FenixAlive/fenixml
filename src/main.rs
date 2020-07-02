@@ -140,6 +140,7 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(S
         web.eval(&format!("rellenar('{}', '{}', '{}')", "subNeto", "Subtotal Neto", format_money(suma_sub)))?;
     }
     web.eval(&format!("rellenar('{}', '{}', '{}')", "total", "Total", format_money(total)))?;
+    mandar_datos_web_view(web, cfdi, "CondicionesDePago", "condicionesPago", "Condiciones de Pago")?;
     mandar_datos_web_view(web, cfdi, "Moneda", "moneda", "Moneda")?;
     mandar_datos_web_view(web, cfdi, "NoCertificado", "certEmi", "Numero de Certificado Emisór")?;
     //si el tipo de cambio existe y es distinto de 1 hacer calculo  de total en pesos y mandarlo
