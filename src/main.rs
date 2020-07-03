@@ -1,11 +1,12 @@
 //#![windows_subsystem = "windows"]
 use web_view::*;
 use tinyfiledialogs as tfd;
-use std::{env, fs, path::Path};
+use std::{env, fs, path::Path, collections::HashMap};
 use xmltree::Element;
 use format_money::format_money;
 use ureq;
 
+//let timber_resources: HashMap<&str, i32> = [("Norway", 100), ("Denmark", 50), ("Iceland", 10)].iter().cloned().collect();
 
 //hacer funcion para tipo de comprobante, regimen fiscal, uso CFDI y metodo de pago o tomar data de archivos csv pero haria mas lenta la aplicación y tardo mas en terminarla
 
