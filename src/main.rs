@@ -6,15 +6,15 @@ use xmltree::Element;
 use format_money::format_money;
 use ureq;
 
-//TODO: hacer complemto de pagos, nomina y traslado, complemento de predial y aduanero
-//cambiar el titulo final
+//TODO: hacer complemento de pagos, nomina y traslado, complemento de predial y aduanero
+//cambiar el titulo final webview, descomentar primera linea y debug(false)
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    // webview
     let html = format!(include_str!("./app/app.html"),
                 css = include_str!("./app/styles.css"),
                 qrcode = include_str!("./app/qrcode.min.js"),
                 javascript = include_str!("./app/app.js")
-            );
+                );
     web_view::builder()
     .title("Cheetah: Visor de CFDI v.3.3 desde su archivo xml")
     .content(Content::Html(html))
@@ -24,37 +24,14 @@ fn main() {
     .user_data(())
     .invoke_handler(|webview, arg| {
         if arg == "inicio" {
-            let mut open_file: String = String::new();
-            if args.len() == 2 {
-                open_file = args[1].to_owned();
-            }else{
-                let mut buscar = tfd::YesNo::Yes;
-                while buscar == tfd::YesNo::Yes { 
-                    match tfd::open_file_dialog("Elige XML de CFDI a ver", "", None){
-                        Some(file) => {
-                            open_file = file;
-                            buscar = tfd::YesNo::No;
-                        },
-                        None => {    
-                            buscar = tfd::message_box_yes_no("No elegiste ningun archivo", "¿Quieres buscar de nuevo?", tfd::MessageBoxIcon::Question, tfd::YesNo::No);
-                            if buscar == tfd::YesNo::No{
-                                webview.exit();
-                                return Ok(());
-                            }
-                        }
-                    }
-                }
-            }
-            if let Some(cfdi) = leer_cfdi(Path::new(&open_file)) {
+            if let Some(cfdi) = abrir_xml(){
                 webview.eval("mostrarApp(true)")?;
                 let datos_val = datos_cfdi(webview, &cfdi)?;
                 //validar xml
                 validar_cfdi_sat(webview, &datos_val.0, &datos_val.1, &datos_val.2, &datos_val.3)?;
-            }else{
+            } else {
                 webview.exit();
-                return Ok(());
             }
-
         }else{
             println!("desde js: {}", arg);
         }
@@ -62,6 +39,31 @@ fn main() {
     })
     .run()
     .unwrap();
+}
+
+fn abrir_xml()-> Option<Element> {
+    let args: Vec<String> = env::args().collect();
+    let mut open_file: String = String::new();
+    if args.len() == 2 {
+        open_file = args[1].to_owned();
+    }else{
+        let mut buscar = tfd::YesNo::Yes;
+        while buscar == tfd::YesNo::Yes { 
+            match tfd::open_file_dialog("Elige XML de CFDI que quieres ver", "", None){
+                Some(file) => {
+                    open_file = file;
+                    buscar = tfd::YesNo::No;
+                },
+                None => {    
+                    buscar = tfd::message_box_yes_no("No elegiste ningun archivo", "¿Quieres buscar de nuevo?", tfd::MessageBoxIcon::Question, tfd::YesNo::No);
+                    if buscar == tfd::YesNo::No{
+                        return None;
+                    }
+                }
+            }
+        }
+    }
+    return leer_cfdi(Path::new(&open_file))
 }
 
 //función que implementa el leer un cfdi y validarlo de forma simple
@@ -113,14 +115,19 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(S
     mandar_datos_web_view_cabe(web, cfdi, "Serie", "serie", "Serie")?;
     mandar_datos_web_view_cabe(web, cfdi, "Folio", "folio", "Folio")?;
     let fecha = get_data(&cfdi, "Fecha");
-    let fecha = separar_datetime(fecha);
-    let fecha = format!("{} a las {} hrs", fecha.0, fecha.1);
-    web.eval(&format!("rellenarCabe('{}', '{}', '{}')", "fecha", "Fecha",fecha))?;
+    let mut fecha_c = String::from("");
+    if fecha != ""{
+        let fecha_t = separar_datetime(fecha);
+        fecha_c = format!("{} a las {} hrs", fecha_t.0, fecha_t.1);
+    }
+    web.eval(&format!("rellenarCabe('{}', '{}', '{}')", "fecha", "Fecha",fecha_c))?;
     tipo_cfdi(web, cfdi)?;
     mandar_datos_web_view_cabe(web, cfdi, "LugarExpedicion", "lugarExp", "C.P. Expedición")?;
     mandar_datos_web_view(web, cfdi, "Version", "versionCfdi", "Versión CFDI")?;
-    metodo_pago(web, cfdi)?;
-    forma_pago(web, cfdi)?;
+    let metodo_p = metodo_pago(cfdi, "MetodoPago")?;
+    web.eval(&format!("rellenar('metodoPago', 'Metodo de Pago', '{}')", metodo_p))?;
+    let forma_p = forma_pago(cfdi, "FormaPago")?;
+    web.eval(&format!("rellenar('formaPago', 'Forma de Pago', '{}')", forma_p))?;
     let subtotal = get_data(&cfdi, "SubTotal");
     web.eval(&format!("rellenar('{}', '{}', '{}')", "subtotal", "Subtotal", format_money(subtotal)))?;
     //si hay descuento mostrar linea de neto subtotal
@@ -217,9 +224,12 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(S
                     match com.name.as_ref(){
                         "TimbreFiscalDigital" => {
                             let fecha_tim = get_data(com, "FechaTimbrado");
-                            let fecha = separar_datetime(fecha_tim);
-                            let fecha = format!("{} a las {} hrs", fecha.0, fecha.1);
-                            web.eval(&format!("rellenar('{}', '{}', '{}')", "fechaTimbre", "Fecha de Timbrado",fecha))?;
+                            let mut fecha_c = String::from("");
+                            if fecha_tim != "" {
+                                let fecha_tem = separar_datetime(fecha_tim);
+                                fecha_c = format!("{} a las {} hrs", fecha_tem.0, fecha_tem.1);
+                            }
+                            web.eval(&format!("rellenar('{}', '{}', '{}')", "fechaTimbre", "Fecha de Timbrado",fecha_c))?;
                             mandar_datos_web_view(web, com, "NoCertificadoSAT", "certSat", "Numero de Certificado SAT")?;
                             web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "selloSat", "Sello Digital del SAT", get_data(&com, "SelloSAT")))?;
                             uuid = get_data(&com, "UUID");
@@ -234,7 +244,19 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(S
                             web.eval(&format!("rellenar_cortado('{}', '{}', '{}')", "cadenaTim", "Cadena Original del Timbre",cadena))?;
                         },
                         "Pagos" => {
-                            //total_pagado = total_pagos(&com);
+                            let mut id = 0;
+                            web.eval("pagosCont()")?;
+                            for pago in com.children.iter() {
+                                let fecha_pago = get_data(pago, "FechaPago");
+                                let mut fecha_c = String::from("");
+                                if fecha_pago != ""{
+                                    let fecha_t = separar_datetime(fecha_pago);
+                                    fecha_c = format!("{} a las {} hrs", fecha_t.0, fecha_t.1);
+                                }
+                                let forma_p = forma_pago(pago, "FormaDePagoP")?;
+                                web.eval(&format!("pagoCabe('{}','{}','{}','{}','{}','{{}}')", id, fecha_c, forma_p, get_data(pago, "MonedaP"), format_money(get_data(pago, "Monto"))))?;
+                                id += 1;   
+                            }
                         },
                         _ => println!("falta en Complemento: {:?}", com.name)
                     }
@@ -245,6 +267,7 @@ fn datos_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(S
                 let mut idx_rel = 0;
                 for rel in cf.children.iter() {
                     web.eval(&format!("addRelacionado(`{}`, `{}`)", idx_rel, get_data(&rel, "UUID")))?;
+                    idx_rel += 1;
                 }
             }
             _ => println!("falta en cfdi: {:?}", cf.name)
@@ -289,42 +312,6 @@ fn get_data<'a>(cfdi: &'a Element, key: &str) -> &'a str {
 fn separar_datetime(datetime: &str) -> (String, String){
     let dt_sp: Vec<&str> = datetime.split("T").collect();
     (dt_sp[0].to_string(), dt_sp[1].to_string())
-}
-
-//hacerlo asincrono o en otro thread
-fn validar_cfdi_sat(web: &mut web_view::WebView<'_, ()>, rfc_emit: &str, rfc_recib: &str, total: &str, uuid: &str) -> Result<bool, web_view::Error>{
-    let cdata = format!("<![CDATA[?re={}&rr={}&tt={}&id={}]]>", rfc_emit, rfc_recib, total, uuid);
-    let cuerpo = format!("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:Consulta><!--Optional:--><tem:expresionImpresa>{}</tem:expresionImpresa></tem:Consulta></soapenv:Body></soapenv:Envelope>", cdata);
-    // sync post request 
-    let resp = ureq::post("https://consultaqr.facturaelectronica.sat.gob.mx/ConsultaCFDIService.svc?wsdl")
-    .set("Content-type", "text/xml;charset=\"utf-8\"")
-    .set("Content-type", "text/xml;charset=\"utf-8\"")
-    .set("Accept", "value: V")
-    .set("SOAPAction", "http://tempuri.org/IConsultaCFDIService/Consulta")
-    .timeout_connect(10_000) 
-    .send_string(&cuerpo);
-    //println!("{:?}", resp);
-    if resp.ok() {
-        if let Ok(res) = resp.into_string(){
-            let esta: Vec<&str> = res.split("<a:Estado>").collect();
-            if esta.len() == 2{
-                let dos: Vec<&str> = esta[1].split("</a:Estado>").collect();
-                //println!("{}",dos[0]);
-                web.eval(&format!("esValido('{}')", dos[0]))?;
-                return Ok(true);
-            }else{
-                //println!("validar_cfdi_sat: res: {}", res);
-                web.eval(&format!("esValido('pendienteOk')"))?;
-            }
-        }else{
-            //println!("validar_cfdi_sat: No se puede convertir a string la respuesta");
-            web.eval(&format!("esValido('pendienteOk')"))?;
-        }
-    } else {
-        //println!("validar_cfdi_sat: respuesta distinta a 2xx");
-        web.eval(&format!("esValido('pendienteNo2xx')"))?;
-    }
-    Ok(false)
 }
 
 //completa el tipo de impuesto
@@ -376,8 +363,8 @@ fn regimen_fiscal(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Resul
     Ok(())
 }
 
-fn metodo_pago(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(), web_view::Error>{
-    let key =  get_data(&cfdi, "MetodoPago");
+fn metodo_pago( cfdi: & Element, tit: &str) -> Result<String, web_view::Error>{
+    let key =  get_data(&cfdi, tit);
     let dato: &str;
     if key == "PUE"{
         dato = "PUE - Pago en una sola exhibición";
@@ -386,22 +373,21 @@ fn metodo_pago(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(
     }else{
         dato = key;
     }
-    web.eval(&format!("rellenar('metodoPago', 'Metodo de Pago', '{}')", dato))?;
-    Ok(())
+    Ok(dato.to_string())
 }
 
-fn forma_pago(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(), web_view::Error>{
+fn forma_pago(cfdi: & Element, tit: &str) -> Result<String, web_view::Error>{
     let forma: HashMap<&str, &str> = [("01",	"Efectivo"), ("02",	"Cheque nominativo"), ("03",	"Transferencia electrónica de fondos"),
     ("04",	"Tarjeta de crédito"), ("05",	"Monedero electrónico"), ("06",	"Dinero electrónico"), ("08",	"Vales de despensa"),
     ("12",	"Dación en pago"), ("13",	"Pago por subrogación"), ("14",	"Pago por consignación"), ("15",	"Condonación"),
     ("17",	"Compensación"), ("23",	"Novación"), ("24",	"Confusión"), ("25",	"Remisión de deuda"), ("26",	"Prescripción o caducidad"),
     ("27",	"A satisfacción del acreedor"), ("28",	"Tarjeta de débito"), ("29",	"Tarjeta de servicios"), ("30",	"Aplicación de anticipos"),
     ("31",	"Intermediario pagos"), ("99",	"Por definir")].iter().cloned().collect();
-    let key =  get_data(&cfdi, "FormaPago");
+    let key =  get_data(&cfdi, tit);
     if let Some(tipo) = forma.get(key){
-        web.eval(&format!("rellenar('formaPago', 'Forma de Pago', '{}')", format!("{} - {}", key, tipo)))?;
+        return Ok(format!("{} - {}", key, tipo.to_string()));
     }
-    Ok(())
+    Ok(key.to_string())
 }
 
 fn uso_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(), web_view::Error>{
@@ -421,22 +407,38 @@ fn uso_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: & Element) -> Result<(), 
     Ok(())
 }
 
-//pendientes ver si sirven 
-fn evaluar_importe(imp: &Element, att: &str) -> f64{
-    if let Some(val) = imp.attributes.get(att) {
-                            match val.parse::<f64>() {
-                                Ok(val) => return val,
-                                Err(_) => {}
-                            };
-                        };
-    0.0
-}
-
-fn _total_pagos(pagos: &Element) -> String{
-    let mut monto_total = 0.0;
-    for pago in pagos.children.iter() {
-        monto_total += evaluar_importe(&pago, "Monto");
+//hacerlo asincrono o en otro thread
+fn validar_cfdi_sat(web: &mut web_view::WebView<'_, ()>, rfc_emit: &str, rfc_recib: &str, total: &str, uuid: &str) -> Result<bool, web_view::Error>{
+    let cdata = format!("<![CDATA[?re={}&rr={}&tt={}&id={}]]>", rfc_emit, rfc_recib, total, uuid);
+    let cuerpo = format!("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tem=\"http://tempuri.org/\"><soapenv:Header/><soapenv:Body><tem:Consulta><!--Optional:--><tem:expresionImpresa>{}</tem:expresionImpresa></tem:Consulta></soapenv:Body></soapenv:Envelope>", cdata);
+    // sync post request 
+    let resp = ureq::post("https://consultaqr.facturaelectronica.sat.gob.mx/ConsultaCFDIService.svc?wsdl")
+    .set("Content-type", "text/xml;charset=\"utf-8\"")
+    .set("Content-type", "text/xml;charset=\"utf-8\"")
+    .set("Accept", "value: V")
+    .set("SOAPAction", "http://tempuri.org/IConsultaCFDIService/Consulta")
+    .timeout_connect(5_000) //al hacerlo asincrono puedes dejarlo mas tiempo
+    .send_string(&cuerpo);
+    //println!("{:?}", resp);
+    if resp.ok() {
+        if let Ok(res) = resp.into_string(){
+            let esta: Vec<&str> = res.split("<a:Estado>").collect();
+            if esta.len() == 2{
+                let dos: Vec<&str> = esta[1].split("</a:Estado>").collect();
+                //println!("{}",dos[0]);
+                web.eval(&format!("esValido('{}')", dos[0]))?;
+                return Ok(true);
+            }else{
+                //println!("validar_cfdi_sat: res: {}", res);
+                web.eval(&format!("esValido('pendienteOk')"))?;
+            }
+        }else{
+            //println!("validar_cfdi_sat: No se puede convertir a string la respuesta");
+            web.eval(&format!("esValido('pendienteOk')"))?;
+        }
+    } else {
+        //println!("validar_cfdi_sat: respuesta distinta a 2xx");
+        web.eval(&format!("esValido('pendienteNo2xx')"))?;
     }
-    format!("{:.2}", monto_total)
+    Ok(false)
 }
-

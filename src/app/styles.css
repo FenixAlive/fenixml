@@ -40,19 +40,16 @@
   overflow: hidden;
 }
 
-#cabecera, #validar, #conceptos, #relacionadosCab, #relacionadoCab{
+#cabecera, #validar, #conceptos, #relacionadosCab, #relacionadoCab, #pagosCont{
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: space-evenly;
   margin: 0.23em 0.7%;
 }
-#validar, #relacionadosCab{
+#validar, #relacionadosCab, #pagosCont{
   margin: 0.23em 1em;
   padding: 0 !important;
-}
-#relacionadoCab{
-  margin: 0.2em 0.2em;
 }
 .borde{
   border: 1px solid #232323;
@@ -68,6 +65,9 @@
   align-items: stretch;
   align-content: stretch;
   flex-grow: 1;
+}
+.pagoAd{
+  flex-wrap: wrap !important;
 }
 #seriefol{
   display: flex;
@@ -86,6 +86,7 @@
 #fecha, #tipoComp, #lugarExp{
   min-width: 30%;
   flex-grow: 1;
+  margin: 0 0.1em;
 }
 #emirec, #traslaCont, .datosAdCol{
   display: flex;

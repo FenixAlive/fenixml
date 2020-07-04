@@ -1,5 +1,5 @@
 [package]
-name = "Cheetah_CFDIXML"
+name = "cheetah_xml_cfdi"
 version = "0.1.0"
 authors = ["Luis Angel Muñoz Franco <luisangelmf@gmail.com>"]
 edition = "2018"
@@ -21,5 +21,5 @@ winres = "0.1"
 
 [package.metadata.winres]
 FileDescription = "Cheetah: Visor de CFDI v.3.3 desde su archivo xml"
-OriginalFilename = "CheetahCFDIXML.exe"
+OriginalFilename = "Cheetah XML CFDI.exe"
 LegalCopyright = "Luis Angel Muñoz Franco © 2020"

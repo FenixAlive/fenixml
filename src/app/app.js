@@ -70,7 +70,7 @@ function addConcep(idx, cantidad, claveUnidad, unidad, claveProdServ, numIde, va
   document.getElementById(`concepto_${idx-1}`).insertAdjacentHTML("afterend", concep);
   document.getElementById(`concepDet_${idx}`).style.display="none";
   //evento al click
-  document.getElementById(`concepto_${idx}`).addEventListener("click", ()=>{
+  document.getElementById(`concepBase_${idx}`).addEventListener("click", ()=>{
     var disp = document.getElementById(`concepDet_${idx}`).style.display;
     if(disp == "none"){
       document.getElementById(`concepDet_${idx}`).style.display="flex";
@@ -222,6 +222,48 @@ function esValido(val){
   }else{
     document.getElementById("validar").innerHTML=`<b class="danger padText">Respuesta de Validación: ${val}</b>`;
   }
+}
+
+function pagosCont(){
+  document.getElementById("pagos").innerHTML=`<div class="borde" id="pagosCont">
+                                                <div class="" id=""><b>Complemento de Pago</b></div>
+                                                <div class="cabrows bordeDownDash bordeUpDash" id="pagoCabe_-1">
+                                                  <div class="" id="fechaP"><b>Fecha de Pago</b></div>
+                                                  <div class="" id="formaPagoP"><b>Forma de Pago</b></div>
+                                                  <div class="" id="monedaP"><b>Moneda de Pago</b></div>
+                                                  <div class="" id="montoP"><b>Monto de Pago</b></div>
+                                                </div>
+                                              </div>`
+}
+
+function pagoCabe(id, fechaP, formaPP, monedaP, montoP, otros){
+  var pago = `<div class="pagoCont" id="pagoCabe_${id}">
+                <div class="cabrows borde pointer" id="pagoBase_${id}">
+                  <div class="" id="fechaP">${fechaP}</div>
+                  <div class="" id="formaPagoP">${formaPP}</div>
+                  <div class="" id="monedaP">${monedaP}</div>
+                  <div class="" id="montoP">${montoP}</div>
+                </div>
+                <div class="" id="pagoDet_${id}">
+                  <div class="pagoAd cabrows">demas datos</div>
+                  <div class="docRelCont" id="docRelCont_${id}"></div>
+                </div>
+              </div>`;
+  document.getElementById(`pagoCabe_${id-1}`).insertAdjacentHTML("afterend", pago);
+  document.getElementById(`pagoDet_${id}`).style.display="none";
+  //evento al click
+  document.getElementById(`pagoBase_${id}`).addEventListener("click", ()=>{
+    var disp = document.getElementById(`pagoDet_${id}`).style.display;
+    if(disp == "none"){
+      document.getElementById(`pagoDet_${id}`).style.display="flex";
+      document.getElementById(`pagoBase_${id}`).classList.add("pointerClick");
+      document.getElementById(`pagoBase_${id}`).classList.remove("pointer");
+    }else{
+      document.getElementById(`pagoBase_${id}`).classList.remove("pointerClick");
+      document.getElementById(`pagoBase_${id}`).classList.add("pointer");
+      document.getElementById(`pagoDet_${id}`).style.display="none";
+    }
+  })    
 }
 
 function debug(data){
