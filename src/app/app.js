@@ -187,6 +187,31 @@ function rellenar_cortado(id, titulo, data){
   }
 }
 
+function rellenarRelacionadosCabe(tipo){
+  //crear dentro de un div de relacionados un bloque para poner los relacionados de este nodo
+  document.getElementById("relacionadosAll").innerHTML = `<div id="relacionadosCab" class="borde">
+                                                            <div class="cabrows bordeDownDash" id="relacionadosTit">
+                                                              <div class="datoTit" ><b>Documentos Relacionados:</b></div>
+                                                              <div class="datoCont" id="tipoRelacion">
+                                                                <div class="datoTit"><b>Tipo de Relación:</b></div>
+                                                                <div class="datoCab"> ${tipo}</div>
+                                                              </div>
+                                                            </div>
+                                                            <div class="" id="relacionadoCab"></div>
+                                                          </div>`
+}
+
+function addRelacionado(id, uuid){
+  if (uuid != "") {
+    var info = `<div id="relacion_${id}" class="datoCont"><div class="datoTit"><b>Comprobante Relacionado UUID:</b></div><div class="datoCab">${uuid}</div>`
+    if (id == 0){
+      document.getElementById("relacionadoCab").innerHTML=info;
+    }else{
+      document.getElementById(`relacion_${idx-1}`).insertAdjacentHTML("afterend", info);
+    }
+  }
+}
+
 function esValido(val){
   if(val == "Vigente"){
     document.getElementById("validar").innerHTML=`<b class="success padText">Comprobante Valido y Vigente</b>`;

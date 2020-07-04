@@ -40,11 +40,19 @@
   overflow: hidden;
 }
 
-#cabecera, #validar, #conceptos{
+#cabecera, #validar, #conceptos, #relacionadosCab, #relacionadoCab{
+  display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: space-evenly;
-  margin: 0.7% 0.7%;
+  margin: 0.23em 0.7%;
+}
+#validar, #relacionadosCab{
+  margin: 0.23em 1em;
+  padding: 0 !important;
+}
+#relacionadoCab{
+  margin: 0.2em 0.2em;
 }
 .borde{
   border: 1px solid #232323;
@@ -65,11 +73,10 @@
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  min-width: 40%;
   flex-grow: 1;
+  margin: 0 0.2em 0 0;
 }
 #serie, #folio{
-  min-width: 20%;
   flex-grow: 1;
 }
 #uuidCont{
@@ -149,7 +156,7 @@ img{
   min-width: 12%;
 }
 .datoContImp{
-  min-width: 19% !important;
+  min-width: 17% !important;
   flex-grow: 1;
 }
 .datoContCenter{
@@ -193,9 +200,6 @@ img{
   min-width: 10%;
   padding: 0 0.1em 0 0.3em;
   flex-grow: 2;
-}
-#validar{
-  padding: 0 !important;
 }
 .success{
   background-color: #35c7a3;

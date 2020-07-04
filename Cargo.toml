@@ -1,15 +1,15 @@
 [package]
-name = "ver_xml_cfdi"
+name = "Cheetah_CFDIXML"
 version = "0.1.0"
 authors = ["Luis Angel Muñoz Franco <luisangelmf@gmail.com>"]
 edition = "2018"
+license = "Artistic License 2.0"
+readme = "README.md"
 build= "build.rs"
 
 [dependencies]
 xmltree = "^0.8"
 web-view = { git = "https://github.com/Boscop/web-view", features = ["edge"] }
-#web-view = "^0.6"
-#web-view = { version = "^0.6", features = ["edge"]} #si quiero usar edge , features = ["edge"] }
 tinyfiledialogs = "3.3.9"
 format_money = "0.1.1"
 ureq = "1.3.0"
@@ -20,6 +20,6 @@ ureq = "1.3.0"
 winres = "0.1"
 
 [package.metadata.winres]
-FileDescription = "Visor de archivos CFDI versión 3.3 extensión xml"
-OriginalFilename = "leer_xml_cfdi.exe"
-LegalCopyright = "FenixAlive © 2020"
+FileDescription = "Cheetah: Visor de CFDI v.3.3 desde su archivo xml"
+OriginalFilename = "CheetahCFDIXML.exe"
+LegalCopyright = "Luis Angel Muñoz Franco © 2020"
