@@ -11,50 +11,46 @@
 </head>
 <body>
   <div id="appContainer">
-    <div id="container">
-      <div class="cabrows borde padText" id ="validar">Esperando revisión de validación</div>
-      <div class="" id="cabecera">
+    <div class="cabCols" id="container">
+      <div class="cabCols borde" id ="validar">Esperando revisión de validación</div>
+      <div class="cabCols" id="cabecera">
         <div class="cabrows">
-          <div class="" id="seriefol">
-            <div id="serie"></div>
-            <div id="folio"></div>
-          </div>
-          <div id="uuidCont">
-            <div id="uuid"></div>
-          </div>
+          <div class="flexGrow1" id="serie"></div>
+          <div class="flexGrow1" id="folio"></div>
+          <div class="flexGrow2" id="uuid"></div>
         </div>
-        <div id="ftlcont"  class="cabrows">
-          <div id="fecha"></div>
-          <div id="tipoComp"></div>
-          <div id="lugarExp"></div>
+        <div id=""  class="cabrows">
+          <div class="flexGrow1" id="fecha"></div>
+          <div class="flexGrow1" id="tipoComp"></div>
+          <div class="flexGrow1" id="lugarExp"></div>
         </div>
       </div>
       <div id="relacionadosAll"></div>
-      <div class="" id="emirec">
-        <div class="cabcols" id="emisorcont">
-          <div id="emTitulo"><b>Emisor</b></div>
+      <div class="cabrows" id="emirec">
+        <div class="cabcols borde flexGrow1 minWidth2" id="emisorcont">
+          <div class="bordeDownDash" id="emTitulo"><b>Emisor</b></div>
           <div id="rfcEmi"></div>
           <div id="razonEmi"></div>
           <div id="regimenEmi"> </div>
         </div>
-        <div class="cabcols" id="receptorcont">
-          <div id="recTitulo"><b>Receptor</b></div>
+        <div class="cabcols borde flexGrow1 minWidth2" id="receptorcont">
+          <div class="bordeDownDash" id="recTitulo"><b>Receptor</b></div>
           <div id="rfcRec"></div>
           <div id="razonRec"></div>
           <div id="usoCfdi"></div>
         </div>
       </div>
-      <div class="" id="conceptos">
+      <div class="cabCols" id="conceptos">
       </div>
-      <div class="" id="traslaCont">
-        <div id="trasAdiCont">
+      <div class="cabrows" id="traslaCont">
+        <div class="cabColsStart borde minWidth2 flexGrow1" id="trasAdiCont">
           <div id="formaPago"></div>
           <div id="metodoPago"></div>
           <div id="condicionesPago"></div> 
           <div id="tipoCambio"></div>
           <div id="moneda"></div>
         </div>
-        <div id="trasCont">
+        <div class="cabColsStart borde minWidth2 flexGrow1" id="trasCont">
           <div id="subtotal"></div>
           <div id="descuento"></div>
           <div id="subNeto"></div>
@@ -65,8 +61,8 @@
       </div>
       <div id="pagos"></div>
       <div class="cabrows" id="complemento">
-        <div id="qr"></div>
-        <div id="compCont" class="borde">
+        <div class="width20 flexGrow1" id="qr"></div>
+        <div class="width75 flexGrow3" id="compCont" class="borde">
           <div id="versionCfdi"></div>
           <div  id="fechaTimbre"></div>
           <div id="certEmi"></div>
