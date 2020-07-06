@@ -5,10 +5,11 @@
   color: #232323;
   font-family: Serif, 'Courier New', Courier, monospace;
   text-align: center;
+}
+div{
   overflow: hidden;
   overflow-wrap: break-word;
 }
-
 #appContainer{
   min-width: 600px;
   display: -webkit-box;
@@ -21,7 +22,7 @@
   flex-wrap: nowrap;
 }
 #container{
-  margin: 1em 0;
+  margin: 1em 0 19px 0;
   width: 90%;
   background-color: #f9f9f9;
   box-shadow: 1px 1px 1px #979797;
@@ -131,7 +132,7 @@ img{
   background-color: #93a3c7;
 }
 .prim2:hover{
-  background-color: #5791a3;
+  background-color: #5e9fdf;
 }
 .prim3:hover{
   background: #a2c7c5;
@@ -141,7 +142,9 @@ img{
 }
 /*Quitar al final*/
 div{
-  border: 0.5 dashed #aaf;;
+  border: 0.5px dashed #aaf;
+  margin: 1px;
+
 }  
 @media (min-width: 750px) { 
   *{

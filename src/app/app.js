@@ -1,31 +1,28 @@
 'use strict'
-
+//inicia envio de datos desde rust
 window.external.invoke("inicio");
 
-var htmlHide = {
-  app: true
-}
+//oculta datos hasta que este lista la info
 ocultarElemento("appContainer");
 
+//muestra la app
 function mostrarApp(isIt){
-  if (htmlHide.app && isIt){
+  var disp = document.getElementById("appContainer").style.display;
+  if (disp == "none" && isIt){
     document.getElementById("appContainer").style.display="flex";
-  }else if(!htmlHide.app && !isIt){
+  }else {
     document.getElementById("appContainer").style.display="none";
   }
-  htmlHide.app= !htmlHide.app;
 }
 
+
+//agrega cabecera de conceptos
 function showConcep(isIt){
   if (isIt){
     document.getElementById("conceptos").innerHTML=`
     <div class="cabCols" id="concepto_-1">
       <div class="cabrows borde">
-        <div class="flexGrow1 width12"><b>Cantidad</b></div>
-        <div class="flexGrow1 width12"><b>Precio Unitario</b></div>
-        <div class="minWidth2 flexGrow4"><b>Descripción</b></div>
-        <div class="flexGrow1 width12"><b>Descuento</b></div>
-        <div class="flexGrow1 width12"><b>Importe</b></div>
+        ${concepPrinData("<b>Cantidad</b>", "<b>Precio Unitario</b>", "<b>Descripción</b>", "<b>Descuento</b>", "<b>Importe</b>")}
       </div>
     </div>
     `;
@@ -34,6 +31,7 @@ function showConcep(isIt){
   }
 }
 
+//agrega un concepto
 function addConcep(idx, cantidad, claveUnidad, unidad, claveProdServ, numIde, valorUni, descrip, importe, descuento){
   var data = [unidad, claveUnidad, claveProdServ, numIde];
   var tit = ["Unidad", "Clave Unidad", "Clave Producto/Servicio", "Num. Identificación"];
@@ -48,18 +46,11 @@ function addConcep(idx, cantidad, claveUnidad, unidad, claveProdServ, numIde, va
   var concep = `
   <div class="cabCols" id="concepto_${idx}">
       <div class="cabrows borde prim1" id="concepBase_${idx}">
-        <div class="flexGrow1 width12">${cantidad}</div>
-        <div class="flexGrow1 width12">${valorUni}</div>
-        <div class="minWidth2 flexGrow4">${descrip}</div>
-        <div class="flexGrow1 width12">${descuento}</div>
-        <div class="flexGrow1 width12">${importe}</div>
+        ${concepPrinData(cantidad, valorUni, descrip, descuento, importe)}
       </div>
       <div class="cabCols flexGrow1" id="concepDet_${idx}">
         <div class ="cabrows datosAdCol borde" id="datosAd_${idx}">
-          ${data[0]}
-          ${data[1]}
-          ${data[2]}
-          ${data[3]}
+          ${data[0]} ${data[1]} ${data[2]} ${data[3]}
         </div>
       </div>
   </div>
@@ -67,19 +58,16 @@ function addConcep(idx, cantidad, claveUnidad, unidad, claveProdServ, numIde, va
   elementoClickeable(idx, "concepto", "concepDet", concep, "concepBase", "prim1", "prim2");
 }
 
+//agrega la cabecera de los impuestos de un concepto
 function trasRetConcepCabe(idx){
   document.getElementById(`datosAd_${idx}`).insertAdjacentHTML("afterend", `<div class="borde" id="trasRetConcepCont_${idx}">
                                                                               <div id="trasRetConcep_${idx}_-1" class="bordeDownDash cabrows">
-                                                                                <div class="width16 textAlL"><b>Tipo</b></div>
-                                                                                <div class="width16 flexGrow1 textAlL"><b>Impuesto</b></div>
-                                                                                <div class="width20 flexGrow2 textAlL"><b>Base Impuesto</b></div>
-                                                                                <div class="width16 flexGrow1 textAlL"><b>Tipo de Factor</b></div>
-                                                                                <div class="width16 flexGrow1 textAlL"><b>Tasa o Cuota</b></div>
-                                                                                <div class="width16 flexGrow2 textAlL"><b>Importe Impuesto</b></div>
+                                                          ${trasRetConcepData("Tipo", "<b>Impuesto</b>","<b>Base Impuesto</b>", "<b>Tipo Factor</b>", "<b>Tasa o Cuota</b>", "<b>Importe Impuesto</b>")}
                                                                               </div>
                                                                             </div>`);
 }
 
+//agrega los datos de un impuesto de un concepto
 function addTrasRetConcep(idx, id, tipo, importe, tasa, tipoFactor, impuesto, base){
   var name = "";
   if(tipo == "Traslados"){
@@ -92,22 +80,14 @@ function addTrasRetConcep(idx, id, tipo, importe, tasa, tipoFactor, impuesto, ba
     tasa = (Number(tasa)*100).toFixed(4)+"%";
   }
   document.getElementById(`trasRetConcep_${idx}_${id-1}`).insertAdjacentHTML("afterend", `<div id="trasRetConcep_${idx}_${id}" class="retConcepCont cabrows datosAdCol">
-                                                                              <div class="width16 textAlL"><b>${name}</b></div>
-                                                                              <div class="width16 flexGrow1 textAlL">${impuesto}</div>
-                                                                              <div class="width20 flexGrow2 textAlL">${base}</div>
-                                                                              <div class="width16 flexGrow1 textAlL">${tipoFactor}</div>
-                                                                              <div class="width16 flexGrow1 textAlL">${tasa}</div>
-                                                                              <div class="width16 flexGrow2 textAlL">${importe}</div>
-                                                                            </div>`);
+                                                                                            ${trasRetConcepData(name, impuesto,base, tipoFactor, tasa, importe)}
+                                                                                          </div>`);
 }
+
 //agrega la cabecera a la tabla de los impuestos generales
 function impuestosCabe(){
   document.getElementById("impuestos").innerHTML = `<div class="bordeUpDash bordeDownDash cabrows" id="impCont_-1">
-                                                      <div class="width20 textAlL"><b>Tipo</b></div>
-                                                      <div class="width20 textAlL flexGrow1"><b>Impuesto</b></div>
-                                                      <div class="width20 textAlL flexGrow1"><b>Factor</b></div>
-                                                      <div class="width20 textAlL flexGrow1"><b>Tasa o Cuota</b></div>
-                                                      <div class="width20 textAlR flexGrow2"></div>
+                                                      ${trasRetImpData("Tipo", "<b>Impuesto</b>", "<b>Factor</b>", "", "")}
                                                     </div>`
 }
 //agrega los traslados y retenciones dentro del nodo impuestos general
@@ -119,25 +99,26 @@ function addTrasRetImp(idx, tipo, impuesto, factor, tasa, importe){
     tasa = (Number(tasa)*100).toFixed(4)+"%";
   }
   document.getElementById(`impCont_${idx-1}`).insertAdjacentHTML("afterend", `<div class="cabrows" id="impCont_${idx}">
-                                                                                <div class="width20 textAlL">${tipo}</div>
-                                                                                <div class="width20 textAlL flexGrow1">${impuesto}</div>
-                                                                                <div class="width20 textAlL flexGrow1">${factor}</div>
-                                                                                <div class="width20 textAlL flexGrow1">${tasa}</div>
-                                                                                <div class="width20 textAlR flexGrow2">${importe}</div>
+                                                                                ${trasRetImpData(tipo, impuesto, factor, tasa, importe)}
                                                                               </div>`);
 }
+
+//agrega titulo y datos alineados a la derecha los datos
 function rellenar(id, titulo, data){
   reInfoTitData(id, "cabrowsStart flexGrow1", "textAlR", titulo, data);
 }
 
+//agrega titulo y datos alineados a la izquierda los datos
 function rellenarCabe(id, titulo, data){
   reInfoTitData(id, "cabrowsStart flexGrow1 borde", "textAlL", titulo, data);
 }
 
+//agrega titulo y datos en distinstas filas
 function rellenar_cortado(id, titulo, data){
   reInfoTitData(id, "", "textAlL", titulo, data);
 }
 
+//agrega el qr
 function ponerQr(data){
   if (data != ""){
     var qrCode = new QRCode("qr", {
@@ -153,8 +134,8 @@ function ponerQr(data){
   }
 }
 
+//crea bloque para documentos relacionados
 function rellenarRelacionadosCabe(tipo){
-  //crear dentro de un div de relacionados un bloque para poner los relacionados de este nodo
   document.getElementById("relacionadosAll").innerHTML = `<div id="relacionadosCab" class="borde cabCols">
                                                             <div class="cabrows bordeDownDash" id="relacionadosTit">
                                                               <div class="width12 textAlL flexGrow1" ><b>Documentos Relacionados:</b></div>
@@ -167,6 +148,7 @@ function rellenarRelacionadosCabe(tipo){
                                                           </div>`
 }
 
+//agrega un documento relacionado
 function addRelacionado(id, uuid){
   if (uuid != "") {
     var info = `<div id="relacion_${id}" class="cabrowsStart">
@@ -181,6 +163,7 @@ function addRelacionado(id, uuid){
   }
 }
 
+//pone si es validoo no el comprobante conforme la respuesta de la pagina del sat
 function esValido(val){
   if(val == "Vigente"){
     document.getElementById("validar").innerHTML=`<b class="success">Comprobante Valido y Vigente</b>`;
@@ -193,6 +176,7 @@ function esValido(val){
   }
 }
 
+//agrega la cabecera del complemento de pagos
 function pagosCont(){
   document.getElementById("pagos").innerHTML=`<div class="cabCols borde" id="pagosCont">
                                                 <div class="" id=""><b>Complemento de Pago</b></div>
@@ -201,27 +185,36 @@ function pagosCont(){
                                                 </div>
                                               </div>`
 }
+
 //TODO: incompleto
+//agregaun pago en el complemento de pagos
 function pagoCabe(id, fechaP, formaPP, monedaP, montoP, otros){
+  var infoad = divE("flexWrap cabrows", `pagoDet_${id}`, "indo adicio en div")
   var pago = `<div class="pagoCont" id="pagoCabe_${id}">
                 <div class="cabrows borde prim1" id="pagoBase_${id}">
                   ${pagoPrinData(fechaP, formaPP, monedaP, montoP)}
                 </div>
-                <div class="" id="pagoDet_${id}">
-                  <div class="flexWrap cabrows">inof adi</div>
-                </div>
+                ${infoad}
               </div>`;
   //evento al click
   elementoClickeable(id, "pagoCabe", "pagoDet", pago, "pagoBase", "prim1", "prim2");
 }
 
+//TODO
+//agrega la cabecera de un documento relacionado con un pago
+function docPagoCabe(){
+
+}
+
+//envia información a rust
 function debug(data){
   window.external.invoke(data);
 }
 
 
 //funciones internas para acortar codigo
-//idx, idCabe, idDet, elementoAgregar, idBase, color1, color 2
+
+//agrega funcionalidad para mostrar y ocultar info adicional
 function elementoClickeable(idx, idCabe, idDet, htmlAgreg, idBase, color1, color2){
   document.getElementById(`${idCabe}_${idx-1}`).insertAdjacentHTML("afterend", htmlAgreg);
     document.getElementById(`${idDet}_${idx}`).style.display="none";
@@ -240,10 +233,12 @@ function elementoClickeable(idx, idCabe, idDet, htmlAgreg, idBase, color1, color
     })
 }
 
+//retorna un div
 function divE(clase, id_di, data){
   return  `<div class="${clase}" id="${id_di}">${data}</div>`;
 }
 
+//crea datos para un pago
 function pagoPrinData(fechaP, formaPP, monedaP, montoP){
   return `${divE("width30 flexGrow1", "fechaP", fechaP)}
           ${divE("width30 flexGrow1", "formaPagoP", formaPP)}
@@ -252,6 +247,37 @@ function pagoPrinData(fechaP, formaPP, monedaP, montoP){
           `
 }
 
+//crea datos para un concepto
+function concepPrinData(cantidad, valorUni, descrip, descuento, importe){
+  return `${divE("flexGrow1 width12", "", cantidad)}
+          ${divE("flexGrow1 width12", "", valorUni)}
+          ${divE("flexGrow4 minWidth2", "", descrip)}
+          ${divE("flexGrow1 width12", "", descuento)}
+          ${divE("flexGrow1 width12", "", importe)}
+          `
+}
+
+//crea datos para un impuesto dentro de un conceto
+function trasRetConcepData(name, impuesto,base, tipoFactor, tasa, importe){
+  return `${divE("width16 textAlL","",`<b>${name}: </b>`)}
+          ${divE("width16 flexGrow1 textAlL","", impuesto)}
+          ${divE("width20 flexGrow2 textAlL","", base)}
+          ${divE("width16 flexGrow1 textAlL","", tipoFactor)}
+          ${divE("width16 flexGrow1 textAlL","", tasa)}
+          ${divE("width16 flexGrow2 textAlL","", importe)}`
+}
+
+// crea datos para los impuestos globales
+function trasRetImpData(tipo, impuesto, factor, tasa, importe){
+  return `${divE("width20 textAlL", "", `<b>${tipo}: </b>`)}
+          ${divE("width20 textAlL flexGrow1", "", impuesto)}
+          ${divE("width20 textAlL flexGrow1", "", factor)}
+          ${divE("width20 textAlL flexGrow1", "", tasa)}
+          ${divE("width20 textAlR flexGrow4", "", importe)}
+          `
+}
+
+//apoya la función rellenar y rellenarCabe
 function reInfoTitData(id, clase, lado, titulo, data){
   var tit = divE("width12 textAlL flexGrow1", "", `<b>${titulo}: </b>`);
   var dat = divE(`width12 ${lado} flexGrow2`, "", data);
