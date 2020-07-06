@@ -1,4 +1,5 @@
 //#![windows_subsystem = "windows"]
+#![forbid(unsafe_code)]
 use web_view::*;
 use tinyfiledialogs as tfd;
 use std::{env, fs, path::Path, collections::HashMap};

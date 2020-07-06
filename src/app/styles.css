@@ -1,20 +1,14 @@
 *{
   padding: 0;
   margin: 0;
-  font-size: 10px;
+  font-size: 9px;
   color: #232323;
   font-family: Serif, 'Courier New', Courier, monospace;
   text-align: center;
+  overflow: hidden;
+  overflow-wrap: break-word;
 }
-.success{
-  background-color: #35c7a3;
-}
-.warning{
-  background-color: #e9cc27;
-}
-.danger{
-  background-color: #e73f79;
-}
+
 #appContainer{
   min-width: 600px;
   display: -webkit-box;
@@ -23,42 +17,35 @@
   display: -webkit-flex;
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
+  flex-wrap: nowrap;
 }
 #container{
   margin: 1em 0;
   width: 90%;
-  min-height: 500px;
   background-color: #f9f9f9;
   box-shadow: 1px 1px 1px #979797;
-  border-radius: 3px;
 }
-.cabCols{
+.cabCols, .cabColsStart{
   display: flex;
   flex-direction: column;
+}
+.cabCols{
   justify-content: space-around;
 }
 .cabColsStart{
-  display: flex;
-  flex-direction: column;
   justify-content: flex-start;
 }
-.cabrows{
+.cabrows, .cabrowsStart{
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
+}
+.cabrows{
   justify-content: space-around;
-  flex-grow: 1;
 }
 .cabrowsStart{
-  display: flex;
-  flex-direction: row;
   justify-content: flex-start;
-  flex-grow: 1;
-}
-.borde{
-  border: 1px solid #232323;
-  border-radius: 3px;
 }
 .flexWrap{
   flex-wrap: wrap !important;
@@ -75,6 +62,9 @@
 .flexGrow4{
   flex-grow: 4;
 }
+.width75{
+  min-width: 74%;
+}
 .minWidth2{
   min-width: 49%;
 }
@@ -84,83 +74,93 @@
 .width20{
   min-width: 19%;
 }
-.width75{
-  min-width: 74%;
+.width16{
+  width: 16%;
 }
 .width12{
   min-width: 12%;
 }
-.cortarStr{
+.textAlL{
   text-align: left;
-  overflow-wrap: break-word !important;
+}
+.textAlR{
+  text-align: right;
 }
 img{
   width: 100%;
   height: auto;
-  text-align: center;
+}
+.borde, .bordeUpDash, .bordeDownDash, #container{
+  border-radius: 3px;
+}
+.borde{
+  border: 1px solid #232323;
 }
 .bordeUpDash{
   border-top: 0.7px dashed #333;
-  border-radius: 3px;
 }
 .bordeDownDash{
   border-bottom: 0.7px dashed #333;
-  border-radius: 3px;
 }
-/*falta ver si resumo las siguientes clases: */
-.datoTit{
-  min-width: 10%;
-  padding: 0 0.1em 0 0.1em;
-  text-align: left;
-  flex-grow: 1;
+.success{
+  background-color: #35c7a3;
 }
-.datoD{
-  text-align: right;
-  min-width: 10%;
-  padding: 0 0.3em 0 0.1em;
-  flex-grow: 2;
+.warning{
+  background-color: #e9cc27;
 }
-.datoCab{
-  text-align: left;
-  min-width: 10%;
-  padding: 0 0.1em 0 0.3em;
-  flex-grow: 2;
+.danger{
+  background-color: #e73f79;
 }
-.concepDet{
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  flex-grow: 1;
-}
-.pointer{
+.prim1{
   background-color: #def;
 }
-.pointerClick{
+.prim2{
   background-color: #7ebfff;
 }
-.pointer:hover, .pointerClick:hover{
+.prim3{
+  background: #c2e7e5;
+}
+.prim4{
+  background: #7fe7e3;
+}
+.prim1:hover, .prim2:hover, .prim3:hover, .prim4:hover{
   cursor: pointer;
   box-shadow: 2px 2px 2px #3e6793;
-  background-color: #57a3d7;
 }
+.prim1:hover{
+  background-color: #93a3c7;
+}
+.prim2:hover{
+  background-color: #5791a3;
+}
+.prim3:hover{
+  background: #a2c7c5;
+}
+.prim4:hover{
+  background: #5fc7c3;
+}
+/*Quitar al final*/
+div{
+  border: 0.5 dashed #aaf;;
+}  
 @media (min-width: 750px) { 
   *{
-    font-size: 11px;
+    font-size: 10px;
   }
 }
 @media (min-width: 900px) { 
   *{
-    font-size: 12px;
+    font-size: 11px;
   }
 }
 @media (min-width: 1100px) { 
   *{
-    font-size: 13px;
+    font-size: 12px;
   }
 }
 @media (min-width: 1300px) { 
   *{
-    font-size: 14px;
+    font-size: 13px;
   }
 }
 @media (min-width: 1500px) { 
