@@ -97,6 +97,9 @@ img{
 .borde{
   border: 1px solid #232323;
 }
+.bordeDash{
+  border: 1px dashed #232323;
+}
 .bordeUpDash{
   border-top: 0.7px dashed #333;
 }

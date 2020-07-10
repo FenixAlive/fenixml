@@ -168,14 +168,8 @@ function addTrasRetImp(idx, tipo, impuesto, factor, tasa, importe) {
   document.getElementById(`impCont_${idx - 1}`).insertAdjacentHTML(
     "afterend",
     `<div class="cabrows" id="impCont_${idx}">
-                                                                                ${trasRetImpData(
-                                                                                  tipo,
-                                                                                  impuesto,
-                                                                                  factor,
-                                                                                  tasa,
-                                                                                  importe
-                                                                                )}
-                                                                              </div>`
+      ${trasRetImpData(tipo, impuesto, factor, tasa, importe)}
+    </div>`
   );
 }
 
@@ -215,15 +209,15 @@ function rellenarRelacionadosCabe(tipo) {
   document.getElementById(
     "relacionadosAll"
   ).innerHTML = `<div id="relacionadosCab" class="borde cabCols">
-                                                            <div class="cabrows bordeDownDash" id="relacionadosTit">
-                                                              <div class="width12 textAlL flexGrow1" ><b>Documentos Relacionados:</b></div>
-                                                              <div class="cabrowsStart flexGrow1" id="tipoRelacion">
-                                                                <div class="width12 textAlL flexGrow1"><b>Tipo de Relación:</b></div>
-                                                                <div class="width12 textAlL flexGrow2"> ${tipo}</div>
-                                                              </div>
-                                                            </div>
-                                                            <div class="cabCols" id="relacionadoCab"></div>
-                                                          </div>`;
+                    <div class="cabrows bordeDownDash" id="relacionadosTit">
+                      <div class="width12 textAlL flexGrow1" ><b>Documentos Relacionados:</b></div>
+                      <div class="cabrowsStart flexGrow1" id="tipoRelacion">
+                        <div class="width12 textAlL flexGrow1"><b>Tipo de Relación:</b></div>
+                        <div class="width12 textAlL flexGrow2"> ${tipo}</div>
+                      </div>
+                    </div>
+                    <div class="cabCols" id="relacionadoCab"></div>
+                </div>`;
 }
 
 //agrega un documento relacionado
@@ -281,23 +275,22 @@ function pagosCont() {
                                               </div>`;
 }
 
-//agregaun pago en el complemento de pagos
+//agrega un pago en el complemento de pagos
 function pagoCabe(id, fechaP, formaPP, monedaP, montoP, otros) {
   //otros datos: TipoCambioP, NumOperacion, RfcEmisorCtaOrd, NomBancoOrdExt, CtaOrdenante, RfcEmisorCtaBen, CtaBeneficiario, TipoCadPago, CertPago, CadPago, SelloPago
   let val_otros = [
     "Tipo de Cambio",
     "Numero Operación",
-    "Rfc Emisor Cta Ord",
+    "RFC Emisor Cta Ord",
     "Nombre Banco Ord",
     "Cuenta Ordenante",
-    "Rfc Emisor Cuenta Beneficiario",
+    "RFC Emisor Cuenta Beneficiario",
     "Cuenta Beneficiario",
     "Tipo Cadena de Pago",
     "Certificado de Pago",
     "Cadena de Pago",
     "Sello de Pago",
   ];
-  debug("otros: " + otros.length);
   var infoAdentro = ``;
   for (let i = 0; i < otros.length; i++) {
     if (otros[i] != "") {
@@ -330,55 +323,134 @@ function pagoCabe(id, fechaP, formaPP, monedaP, montoP, otros) {
   );
 }
 
-//TODO
-//Recibe la información por pago y la procesa
 function docPago(idP, idD, data) {
   let val_rel = [
     "Documento",
     "Moneda Documento",
     "Metodo Pago Documento",
+    //una linea
     "Serie",
     "Folio",
     "Tipo Cambio documento",
-    "Numero de Parcialidad",
+    "Num. Parcialidad",
+    //otra linea
     "Saldo Anterior",
     "Importe Pagado",
     "Nuevo Saldo",
   ];
+  let clasesBase = [
+    "flexGrow2 minWidth2",
+    "flexGrow1 width20",
+    "flexGrow1 width30",
+  ];
   //si idD es 0 agregas cabecera del documento relacionado
-  //hacer divs personalizados para la base de los datos 0 al 2 del relacionado
-  //
+  if (idD == 0) {
+    let dataCabe = "";
+    for (let i = 0; i < 3; i++) {
+      dataCabe += divE(clasesBase[i], "", `<b>${val_rel[i]}</b>`);
+    }
+    let cabecera = divE(
+      "cabrows bordeUpDash bordeDownDash",
+      `docRelPago_${idP}_-1`,
+      dataCabe
+    );
+    var titulo = divE("flexGrow1", "", "<b>Documentos Relacionados</b>");
+    var container = divE("cabCols borde", "", titulo + cabecera);
+    document
+      .getElementById(`infoAdP_${idP}`)
+      .insertAdjacentHTML("afterend", container);
+  }
+  //base
+  let baseData = "";
+  for (let i = 0; i < 3; i++) {
+    baseData += divE(clasesBase[i], "", `<b>${data[i]}</b>`);
+  }
+  let base = divE(
+    "cabrows borde prim3 flexGrow1",
+    `baseRP_${idP}_${idD}`,
+    baseData
+  );
+  //demas datos
   var infoAdentro = ``;
-  for (let i = 3; i < otros.length; i++) {
-    if (otros[i] != "") {
-      var tit = divE(
-        "width12 textAlR flexGrow2",
-        "",
-        `<b>${val_otros[i]}: </b>`
-      );
-      var dat = divE(`width12 textAlL flexGrow1`, "", otros[i]);
+  for (let i = 3; i < 7; i++) {
+    if (data[i] != "") {
+      let tit = divE("width12 textAlR flexGrow2", "", `<b>${val_rel[i]}: </b>`);
+      let dat = divE(`width12 textAlL flexGrow1`, "", data[i]);
       infoAdentro += divE("flexGrow1 cabrows", "", tit + dat);
     }
   }
-  var infoAdicional = divE("flexWrap cabrows", `infoAdP_${id}`, infoAdentro);
-  debug("docPago:" + data.length);
-  var relacionado = divE(
-    "cabrows borde prim3 flexGrow1",
-    `pagoRel_${idP}_${idD}`,
-    "Documento Relacionado: " + data[0]
+  var infoAdicional1 = divE("cabrows", "", infoAdentro);
+  infoAdentro = ``;
+  for (let i = 7; i < 10; i++) {
+    if (data[i] != "") {
+      let tit = divE("width12 textAlR flexGrow2", "", `<b>${val_rel[i]}: </b>`);
+      let dat = divE(`width12 textAlL flexGrow1`, "", data[i]);
+      infoAdentro += divE("flexGrow1 cabrows", "", tit + dat);
+    }
+  }
+  var infoAdicional2 = divE("cabrows", "", infoAdentro);
+  var infoAdCompl = divE(
+    "cabCols",
+    `infoAdRP_${idP}_${idD}`,
+    infoAdicional1 + infoAdicional2
   );
-  document
-    .getElementById(`infoAdP_${idP}`)
-    .insertAdjacentHTML("afterend", relacionado);
+  var htmlAgreg = divE(
+    "cabCols",
+    `docRelPago_${idP}_${idD}`,
+    base + infoAdCompl
+  );
+  elementoClickeable(
+    idD,
+    `docRelPago_${idP}`,
+    `infoAdRP_${idP}`,
+    htmlAgreg,
+    `baseRP_${idP}`,
+    "prim3",
+    "prim4"
+  );
 }
 
-//envia información a rust
-function debug(data) {
-  window.external.invoke(data);
+//agrega impuestos en un comprobante de pago
+function addTrasRetPago(idP, idx, tipo, impuesto, factor, tasa, importe) {
+  debug("addTrasRetPago");
+  if (idx == 0) {
+    let cabecera = `<div class="bordeUpDash bordeDownDash cabrows" id="impPago_${idP}_-1">
+                      ${trasRetImpData(
+                        "Tipo",
+                        "<b>Impuesto</b>",
+                        "<b>Factor</b>",
+                        "<b>Tasa o Cuota</b>",
+                        "<b>Importe</b>"
+                      )}
+                  </div>`;
+    var titulo = divE("flexGrow1", "", "<b>Impuestos</b>");
+    var container = divE("cabCols borde", "", titulo + cabecera);
+    document
+      .getElementById(`infoAdP_${idP}`)
+      .insertAdjacentHTML("afterend", container);
+    //agregar cabecera
+  }
+  if (tipo == "Retencion") {
+    importe = "- " + importe;
+  }
+  if (factor == "Tasa") {
+    tasa = (Number(tasa) * 100).toFixed(4) + "%";
+  }
+  document.getElementById(`impPago_${idP}_${idx - 1}`).insertAdjacentHTML(
+    "afterend",
+    `<div class="cabrows" id="impPago_${idP}_${idx}">
+      ${trasRetImpData(tipo, impuesto, factor, tasa, importe)}
+    </div>`
+  );
 }
 
 //funciones internas para acortar codigo
-
+/*
+ <div id="idCabe_idx">
+  <div id="idBase"></div>
+  <div id="idDet"></div>
+ </div>
+ */
 //agrega funcionalidad para mostrar y ocultar info adicional
 function elementoClickeable(
   idx,
@@ -392,18 +464,20 @@ function elementoClickeable(
   document
     .getElementById(`${idCabe}_${idx - 1}`)
     .insertAdjacentHTML("afterend", htmlAgreg);
-  document.getElementById(`${idDet}_${idx}`).style.display = "none";
+  var base = document.getElementById(`${idBase}_${idx}`);
+  var borrable = document.getElementById(`${idDet}_${idx}`);
+  borrable.style.display = "none";
   //evento al click
-  document.getElementById(`${idBase}_${idx}`).addEventListener("click", () => {
-    var disp = document.getElementById(`${idDet}_${idx}`).style.display;
-    if (disp == "none") {
-      document.getElementById(`${idDet}_${idx}`).style.display = "flex";
-      document.getElementById(`${idBase}_${idx}`).classList.add(color2);
-      document.getElementById(`${idBase}_${idx}`).classList.remove(color1);
+  base.addEventListener("click", () => {
+    //var disp = document.getElementById(`${idDet}_${idx}`).style.display;
+    if (borrable.style.display == "none") {
+      borrable.style.display = "flex";
+      base.classList.add(color2);
+      base.classList.remove(color1);
     } else {
-      document.getElementById(`${idBase}_${idx}`).classList.remove(color2);
-      document.getElementById(`${idBase}_${idx}`).classList.add(color1);
-      ocultarElemento(`${idDet}_${idx}`);
+      base.classList.remove(color2);
+      base.classList.add(color1);
+      borrable.style.display = "none";
     }
   });
 }
@@ -466,5 +540,10 @@ function reInfoTitData(id, clase, lado, titulo, data) {
 //oculta un elemento del html mediante css
 function ocultarElemento(id) {
   document.getElementById(id).style.display = "none";
+}
+
+//envia información a rust
+function debug(data) {
+  window.external.invoke(data);
 }
 

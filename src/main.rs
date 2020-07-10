@@ -302,9 +302,13 @@ fn datos_cfdi(
             }
             "Impuestos" => {
                 let mut idx_imp = 0;
-                web.eval("impuestosCabe()")?;
+                let mut impu_cabe = true;
                 for tras_ret in cf.children.iter() {
                     for tr_re in tras_ret.children.iter() {
+                        if impu_cabe {
+                            web.eval("impuestosCabe()")?;
+                            impu_cabe = false;
+                        }
                         web.eval(&format!(
                             "addTrasRetImp(`{}`, `{}`, `{}`, `{}`, `{}`, `{}`)",
                             idx_imp,
@@ -430,11 +434,18 @@ fn datos_cfdi(
                                                 "ImpSaldoInsoluto",
                                             ];
                                             for val in val_rel.iter() {
-                                                datos_rel = format!(
-                                                    "{}, '{}'",
-                                                    datos_rel,
-                                                    get_data(pd, val)
-                                                );
+                                                let mut data = String::new();
+                                                if val == &"MetodoDePagoDR" {
+                                                    data = metodo_pago(pd, val)?;
+                                                } else if (val == &"ImpSaldoAnt")
+                                                    || (val == &"ImpPagado")
+                                                    || (val == &"ImpSaldoInsoluto")
+                                                {
+                                                    data = format_money(get_data(pd, val));
+                                                } else {
+                                                    data = get_data(pd, val).to_string();
+                                                }
+                                                datos_rel = format!("{}, '{}'", datos_rel, data);
                                             }
                                             web.eval(&format!(
                                                 "docPago({}, {}, [ {} ])",
@@ -445,11 +456,25 @@ fn datos_cfdi(
                                             id_pd += 1;
                                         }
                                         "Impuestos" => {
+                                            let mut idx_imp = 0;
                                             for tras_ret in pd.children.iter() {
                                                 //retenciones
                                                 //retencion: Impuesto, Importe
                                                 //traslados
                                                 //traslado: Impuesto, TipoFactor, TasaOCuota, Importe
+                                                for tr_re in tras_ret.children.iter() {
+                                                    web.eval(&format!(
+                                                        "addTrasRetPago(`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`)",
+                                                        id,
+                                                        idx_imp,
+                                                        tr_re.name,
+                                                        completar_impuesto(get_data(&tr_re, "Impuesto")),
+                                                        get_data(&tr_re, "TipoFactor"),
+                                                        get_data(&tr_re, "TasaOCuota"),
+                                                        format_money(get_data(&tr_re, "Importe"))
+                                                    ))?;
+                                                    idx_imp += 1;
+                                                }
                                             }
                                         }
                                         falta => println!(
