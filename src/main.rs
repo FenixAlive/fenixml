@@ -294,6 +294,25 @@ fn datos_cfdi(
                                     }
                                 }
                             }
+                            "InformacionAduanera" => {
+                                //Informacion Aduanera InformacionAduanera
+                                //  Atributos: NumeroPedimento
+                            }
+                            "CuentaPredial" => {
+                                //Cuenta Predial CuentaPredial
+                                //  Atributos: Numero
+                            }
+                            "Parte" => {
+                                //Parte
+                                //  Atributos requeridos: ClaveProdServ, Cantidad, Descripcion
+                                //  Opcionales: NoIdentificacion, Unidad, ValorUnitario, Importe
+                                //  nodo interno: InformacionAduanera con Atributo: NumeroPedimento
+                            }
+                            //TODO
+                            //ComplementoConcepto
+                            //  Por pago de tercero, o por colegios, por ahora solo tengo el de
+                            //  pago de terceros
+                            //
                             falta => println!("falta en concepto: {}", falta),
                         }
                     }

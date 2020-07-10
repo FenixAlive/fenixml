@@ -254,7 +254,7 @@ function esValido(val) {
   } else {
     document.getElementById(
       "validar"
-    ).innerHTML = `<b class="danger">Respuesta de Validación: ${val}</b>`;
+    ).innerHTML = `<b class="danger">Respuesta de Validación Negativa: ${val}</b>`;
   }
 }
 
