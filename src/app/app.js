@@ -92,17 +92,17 @@ function trasRetConcepCabe(idx) {
   document.getElementById(`datosAd_${idx}`).insertAdjacentHTML(
     "afterend",
     `<div class="borde" id="trasRetConcepCont_${idx}">
-                                                                              <div id="trasRetConcep_${idx}_-1" class="bordeDownDash cabrows">
-                                                          ${trasRetConcepData(
-                                                            "Tipo",
-                                                            "<b>Impuesto</b>",
-                                                            "<b>Base Impuesto</b>",
-                                                            "<b>Tipo Factor</b>",
-                                                            "<b>Tasa o Cuota</b>",
-                                                            "<b>Importe Impuesto</b>"
-                                                          )}
-                                                                              </div>
-                                                                            </div>`
+      <div id="trasRetConcep_${idx}_-1" class="bordeDownDash cabrows">
+        ${trasRetConcepData(
+          "Tipo",
+          "<b>Impuesto</b>",
+          "<b>Base Impuesto</b>",
+          "<b>Tipo Factor</b>",
+          "<b>Tasa o Cuota</b>",
+          "<b>Importe Impuesto</b>"
+        )}
+      </div>
+    </div>`
   );
 }
 
@@ -295,7 +295,7 @@ function pagoCabe(id, fechaP, formaPP, monedaP, montoP, otros) {
   for (let i = 0; i < otros.length; i++) {
     if (otros[i] != "") {
       var tit = divE(
-        "width12 textAlR flexGrow2",
+        "width12 textAlL flexGrow1",
         "",
         `<b>${val_otros[i]}: </b>`
       );
@@ -374,7 +374,7 @@ function docPago(idP, idD, data) {
   var infoAdentro = ``;
   for (let i = 3; i < 7; i++) {
     if (data[i] != "") {
-      let tit = divE("width12 textAlR flexGrow2", "", `<b>${val_rel[i]}: </b>`);
+      let tit = divE("width12 textAlL flexGrow1", "", `<b>${val_rel[i]}: </b>`);
       let dat = divE(`width12 textAlL flexGrow1`, "", data[i]);
       infoAdentro += divE("flexGrow1 cabrows", "", tit + dat);
     }
@@ -383,7 +383,7 @@ function docPago(idP, idD, data) {
   infoAdentro = ``;
   for (let i = 7; i < 10; i++) {
     if (data[i] != "") {
-      let tit = divE("width12 textAlR flexGrow2", "", `<b>${val_rel[i]}: </b>`);
+      let tit = divE("width12 textAlL flexGrow1", "", `<b>${val_rel[i]}: </b>`);
       let dat = divE(`width12 textAlL flexGrow1`, "", data[i]);
       infoAdentro += divE("flexGrow1 cabrows", "", tit + dat);
     }
@@ -412,7 +412,6 @@ function docPago(idP, idD, data) {
 
 //agrega impuestos en un comprobante de pago
 function addTrasRetPago(idP, idx, tipo, impuesto, factor, tasa, importe) {
-  debug("addTrasRetPago");
   if (idx == 0) {
     let cabecera = `<div class="bordeUpDash bordeDownDash cabrows" id="impPago_${idP}_-1">
                       ${trasRetImpData(
@@ -440,6 +439,75 @@ function addTrasRetPago(idP, idx, tipo, impuesto, factor, tasa, importe) {
     "afterend",
     `<div class="cabrows" id="impPago_${idP}_${idx}">
       ${trasRetImpData(tipo, impuesto, factor, tasa, importe)}
+    </div>`
+  );
+}
+
+//informacion de aduana y cuenta predial en el concepto
+function infoAduCuentaPred(idx, nombre, titulo, data) {
+  document.getElementById(`datosAd_${idx}`).insertAdjacentHTML(
+    "afterend",
+    `<div class="borde cabrows" id="${nombre}Cont_${idx}">
+    </div>`
+  );
+  rellenar(`${nombre}Cont_${idx}`, titulo, data);
+}
+
+//TODO:
+//informacion de parte dentro de concepto
+function parteConcep(idx, req, opc, ped) {
+  var titReq = ["Clave Producto/Servicio", "Cantidad", "Descripción"];
+  var titOp = ["Num. Identificacion", "Unidad", "Valor Unitario", "Importe"];
+  var dataRequerida = "";
+  var dataOp = "";
+  for (let i = 0; i < req.length; i++) {
+    if (req[i] != "") {
+      let tit = divE("width12 textAlL flexGrow1", "", `<b>${titReq[i]}: </b>`);
+      let dat = divE(`width12 textAlL flexGrow1`, "", req[i]);
+      dataRequerida += divE("flexGrow1 cabrows", "", tit + dat);
+    }
+  }
+  for (let i = 0; i < opc.length; i++) {
+    if (opc[i] != "") {
+      let tit = divE("width12 textAlL flexGrow1", "", `<b>${titOp[i]}: </b>`);
+      let dat = divE(`width12 textAlL flexGrow1`, "", opc[i]);
+      dataOp += divE("flexGrow1 cabrows", "", tit + dat);
+    }
+  }
+  var opcional = "";
+  if (dataOp != "") {
+    opcional = divE("cabrows flexWrap", `parteConOp_${idx}`, dataOp);
+  }
+  var pedimento = "";
+  for (let i = 0; i < ped.length; i++) {
+    if (ped[i] != "") {
+      let tit = divE(
+        "width12 textAlL flexGrow1",
+        "",
+        `<b>Información Aduanera - Numero de Pedimento: </b>`
+      );
+      let dat = divE(`width12 textAlR flexGrow1`, "", ped[i]);
+      pedimento += divE("flexGrow1 cabrows", "", tit + dat);
+    }
+  }
+  document.getElementById(`datosAd_${idx}`).insertAdjacentHTML(
+    "afterend",
+    `<div class="borde cabCols" id="parteConcepCont_${idx}">
+      <div id="parteConCabe_${idx}" class=""><b>Parte</b></div>
+      <div id="parteConReq_${idx}" class="cabrows">${dataRequerida}</div>
+      ${opcional}
+      ${pedimento}
+    </div>`
+  );
+}
+
+//TODO:
+//informacion ComplementoConcepto
+function complementoConcep(idx, data) {
+  debug(data);
+  document.getElementById(`datosAd_${idx}`).insertAdjacentHTML(
+    "afterend",
+    `<div class="borde cabCols" id="${nombre}Cabe_${idx}">
     </div>`
   );
 }

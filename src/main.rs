@@ -6,7 +6,8 @@ use tinyfiledialogs as tfd;
 use ureq;
 use web_view::*;
 use xmltree::Element;
-//TODO: hacer complemento de pagos, nomina y traslado, complemento de predial y aduanero
+
+//TODO: hacer nomina y complementoConcepto
 //cambiar el titulo final webview, descomentar primera linea y debug(false)
 fn main() {
     // webview
@@ -16,26 +17,22 @@ fn main() {
         qrcode = include_str!("./app/qrcode.min.js"),
         javascript = include_str!("./app/app.js")
     );
-    web_view::builder()
+    match web_view::builder()
         .title("Cheetah: Visor de CFDI v.3.3 desde su archivo xml")
         .content(Content::Html(html))
-        .size(590, 570)
+        .size(630, 590)
         .resizable(true)
         .debug(true)
         .user_data(())
-        .invoke_handler(|webview, arg| {
+        .invoke_handler(move |webview, arg| {
             if arg == "inicio" {
                 if let Some(cfdi) = abrir_xml() {
                     webview.eval("mostrarApp(true)")?;
                     let datos_val = datos_cfdi(webview, &cfdi)?;
                     //validar xml
-                    validar_cfdi_sat(
-                        webview,
-                        &datos_val.0,
-                        &datos_val.1,
-                        &datos_val.2,
-                        &datos_val.3,
-                    )?;
+                    let is_val =
+                        validar_cfdi_sat(&datos_val.0, &datos_val.1, &datos_val.2, &datos_val.3);
+                    webview.eval(&is_val)?;
                 } else {
                     webview.exit();
                 }
@@ -45,7 +42,13 @@ fn main() {
             Ok(())
         })
         .run()
-        .unwrap();
+    {
+        Ok(_) => {}
+        Err(err) => {
+            eprintln!("Error al correr webview: {}", err);
+        }
+    }
+    ()
 }
 
 fn abrir_xml() -> Option<Element> {
@@ -294,25 +297,63 @@ fn datos_cfdi(
                                     }
                                 }
                             }
-                            "InformacionAduanera" => {
-                                //Informacion Aduanera InformacionAduanera
-                                //  Atributos: NumeroPedimento
-                            }
-                            "CuentaPredial" => {
-                                //Cuenta Predial CuentaPredial
-                                //  Atributos: Numero
+                            "InformacionAduanera" | "CuentaPredial" => {
+                                let mut nombre = "";
+                                let mut buscar = "";
+                                if impu_concep.name == "InformacionAduanera" {
+                                    nombre = "Información Aduanera - Numero de Pedimento";
+                                    buscar = "NumeroPedimento";
+                                } else if impu_concep.name == "CuentaPredial" {
+                                    nombre = "Cuenta Predial - Numero";
+                                    buscar = "Numero";
+                                }
+                                web.eval(&format!(
+                                    "infoAduCuentaPred('{}', '{}', `{}`, '{}')",
+                                    idx_concep,
+                                    impu_concep.name,
+                                    nombre,
+                                    get_data(&impu_concep, buscar)
+                                ))?;
                             }
                             "Parte" => {
-                                //Parte
                                 //  Atributos requeridos: ClaveProdServ, Cantidad, Descripcion
+                                let mut at_req = String::from("");
+                                let at_req_iter = ["ClaveProdServ", "Cantidad", "Descripcion"];
+                                for info in at_req_iter.iter() {
+                                    at_req =
+                                        format!("{}, '{}'", at_req, get_data(&impu_concep, info));
+                                }
                                 //  Opcionales: NoIdentificacion, Unidad, ValorUnitario, Importe
+                                let mut at_opc = String::from("");
+                                let at_opc_iter =
+                                    ["NoIdentificacion", "Unidad", "ValorUnitario", "Importe"];
+                                for info in at_opc_iter.iter() {
+                                    at_opc =
+                                        format!("{}, '{}'", at_opc, get_data(&impu_concep, info));
+                                }
                                 //  nodo interno: InformacionAduanera con Atributo: NumeroPedimento
+                                let mut num_ped = String::new();
+                                for info_ad in impu_concep.children.iter() {
+                                    num_ped = format!(
+                                        "{}, '{}'",
+                                        num_ped,
+                                        get_data(&info_ad, "NumeroPedimento")
+                                    );
+                                }
+                                web.eval(&format!(
+                                    "parteConcep('{}', [{}], [{}], [{}])",
+                                    idx_concep,
+                                    &at_req[1..],
+                                    &at_opc[1..],
+                                    &num_ped[1..]
+                                ))?;
                             }
-                            //TODO
-                            //ComplementoConcepto
-                            //  Por pago de tercero, o por colegios, por ahora solo tengo el de
-                            //  pago de terceros
-                            //
+                            "ComplementoConcepto" => {
+                                //TODO:
+                                //ComplementoConcepto
+                                //  Por pago de tercero, o por colegios, y por ieps
+                                //
+                            }
                             falta => println!("falta en concepto: {}", falta),
                         }
                     }
@@ -422,7 +463,7 @@ fn datos_cfdi(
                                     otros_datos =
                                         format!("{}, '{}'", otros_datos, get_data(pago, val));
                                 }
-                                //TODO: temporal
+                                //TODO: temporal quitar siguiente linea otros_datos
                                 otros_datos = String::from(" 'hola','ajasdf asdasdgasdg asgafgaf adfgadfgadfg adfgadfgadf', 'como', 'rfcEmisor', 'sfdasdfasdfasdfasdfasdfasdasdf', 'aAS8823SD8sdff8223Aasd sdfsdfa aASDJKHJJK', 'ultima','sdfasdasdg asdasdfasfasd asdfasdf' ,'seaeavasasd asdasdradsfasdewfawecawec asdcawerasedasdasdcaewfasdcasdawefascdaersdcarq4513453451345qwefqewasdcq341234sdedasadQWEASDqwdASDwedasdASCewdsdASDASDASDasdfwesdd', '10 asdfewsdfsd asdasdfasdfasdfasdf', '11 asdassadASDsA SDA'" );
                                 web.eval(&format!(
                                     "pagoCabe('{}','{}','{}','{}','{}',[{}])",
@@ -453,7 +494,7 @@ fn datos_cfdi(
                                                 "ImpSaldoInsoluto",
                                             ];
                                             for val in val_rel.iter() {
-                                                let mut data = String::new();
+                                                let data;
                                                 if val == &"MetodoDePagoDR" {
                                                     data = metodo_pago(pd, val)?;
                                                 } else if (val == &"ImpSaldoAnt")
@@ -813,14 +854,8 @@ fn uso_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: &Element) -> Result<(), w
     Ok(())
 }
 
-//hacerlo asincrono o en otro thread
-fn validar_cfdi_sat(
-    web: &mut web_view::WebView<'_, ()>,
-    rfc_emit: &str,
-    rfc_recib: &str,
-    total: &str,
-    uuid: &str,
-) -> Result<bool, web_view::Error> {
+//validación en otro thread
+fn validar_cfdi_sat(rfc_emit: &str, rfc_recib: &str, total: &str, uuid: &str) -> String {
     let cdata = format!(
         "<![CDATA[?re={}&rr={}&tt={}&id={}]]>",
         rfc_emit, rfc_recib, total, uuid
@@ -829,36 +864,35 @@ fn validar_cfdi_sat(
     // sync post request
     let resp =
         ureq::post("https://consultaqr.facturaelectronica.sat.gob.mx/ConsultaCFDIService.svc?wsdl")
-            .set("Content-type", "text/xml;charset=\"utf-8\"")
-            .set("Content-type", "text/xml;charset=\"utf-8\"")
+            .set("content-type", "text/xml;charset=\"utf-8\"")
             .set("Accept", "value: V")
             .set(
                 "SOAPAction",
                 "http://tempuri.org/IConsultaCFDIService/Consulta",
             )
-            .timeout_connect(5_000) //al hacerlo asincrono puedes dejarlo mas tiempo
+            .timeout_connect(3_000) //al hacerlo asincrono puedes dejarlo mas tiempo
             .send_string(&cuerpo);
     //println!("{:?}", resp);
+    let es_valido;
     if resp.ok() {
         if let Ok(res) = resp.into_string() {
             let esta: Vec<&str> = res.split("<a:Estado>").collect();
             if esta.len() == 2 {
                 let dos: Vec<&str> = esta[1].split("</a:Estado>").collect();
                 //println!("{}",dos[0]);
-                web.eval(&format!("esValido('{}')", dos[0]))?;
-                return Ok(true);
+                return format!("esValido('{}')", dos[0]);
             } else {
                 //println!("validar_cfdi_sat: res: {}", res);
-                web.eval(&format!("esValido('pendienteOk')"))?;
+                es_valido = "esValido('pendienteOk')".to_string();
             }
         } else {
             //println!("validar_cfdi_sat: No se puede convertir a string la respuesta");
-            web.eval(&format!("esValido('pendienteOk')"))?;
+            es_valido = "esValido('pendienteOk')".to_string();
         }
     } else {
         //println!("validar_cfdi_sat: respuesta distinta a 2xx");
-        web.eval(&format!("esValido('pendienteNo2xx')"))?;
+        es_valido = "esValido('pendienteNo2xx')".to_string();
     }
-    Ok(false)
+    es_valido
 }
 
