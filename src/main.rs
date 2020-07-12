@@ -352,9 +352,18 @@ fn datos_cfdi(
                                 //TODO:
                                 //ComplementoConcepto
                                 //  Por pago de tercero, o por colegios, y por ieps
-                                //
+                                //nom_p, el.name, capa, id_nodo, id_h, titulo
+                                web.eval(&format!(
+                                    "cabezaNodo('{}{}', '{}',  0, -1, 0, `{}`)",
+                                    "datosAd_",
+                                    idx_concep,
+                                    impu_concep.name,
+                                    camel_titulo(&impu_concep.name)
+                                ))?;
+                                //el nodo hermano debe ser nodo_p_mi_id-1
+                                nodo_xml(web, impu_concep, "datosAd_", 0, 0)?;
                             }
-                            falta => println!("falta en concepto: {}", falta),
+                            _ => {}
                         }
                     }
                     idx_concep += 1;
@@ -894,5 +903,77 @@ fn validar_cfdi_sat(rfc_emit: &str, rfc_recib: &str, total: &str, uuid: &str) ->
         es_valido = "esValido('pendienteNo2xx')".to_string();
     }
     es_valido
+}
+
+//cambia camelcase a titulo
+fn camel_titulo(st: &str) -> String {
+    let mut string_final = String::from("");
+    let lenst = st.len();
+    let mut c_b = 0;
+    let mut corte_ant = 0;
+    for (i, c) in st.chars().enumerate() {
+        let c_hex = c as u32;
+        if i > 1 {
+            //si la letra actual es minuscula
+            if (c_hex < 0x41 || c_hex > 0x5A) && corte_ant != (i - 1) {
+                //si la letra anterior es mayusculas
+                if c_b > 0x40 && c_b < 0x5B {
+                    string_final = format!("{} {}", string_final, &st[corte_ant..i - 1]);
+                    corte_ant = i - 1;
+                }
+            //si la letra actual es mayuscula y la anterior minuscula
+            } else if (c_b < 0x41 || c_b > 0x5A) && corte_ant != i {
+                string_final = format!("{} {}", string_final, &st[corte_ant..i]);
+                corte_ant = i;
+            }
+        }
+        c_b = c_hex;
+    }
+    if corte_ant != 0 {
+        format!("{} {}", &string_final[1..], &st[corte_ant..lenst])
+    } else {
+        st.to_string()
+    }
+}
+
+//el nodo hermano debe ser nodo_p_mi_id-1
+fn nodo_xml(
+    web: &mut web_view::WebView<'_, ()>,
+    el: &Element,
+    nom_p: &str,
+    capa: usize,
+    id_nodo: usize,
+) -> Result<(), web_view::Error> {
+    println!("capa: {}, nom_p: {}, id_nodo: {}", capa, nom_p, id_nodo);
+    let titulo = camel_titulo(&el.name);
+    if el.attributes.len() > 0 || el.children.len() > 0 {
+        web.eval(&format!(
+            "cabezaNodo(`{}`, '{}', {}, {}, `{}`)",
+            nom_p, el.name, capa, id_nodo, titulo
+        ))?;
+    }
+    if el.attributes.len() > 0 {
+        let mut tit_at = String::new();
+        let mut att = String::new();
+        for (name, data) in &el.attributes {
+            tit_at = format!("{}, '{}'", tit_at, camel_titulo(name));
+            att = format!("{}, '{}'", att, data);
+        }
+        web.eval(&format!(
+            "atributosNodo(`{}`,{}, {}, [ {} ], [{}])",
+            el.name,
+            capa,
+            id_nodo,
+            &tit_at[1..],
+            &att[1..]
+        ))?;
+    }
+    let capa = capa + 1;
+    for (i, child) in el.children.iter().enumerate() {
+        let id_nodo = id_nodo + i * 10_usize.pow(capa as u32);
+        println!("{}", id_nodo);
+        nodo_xml(web, child, &el.name, capa, id_nodo)?;
+    }
+    Ok(())
 }
 

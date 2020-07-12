@@ -615,3 +615,50 @@ function debug(data) {
   window.external.invoke(data);
 }
 
+//nuevos elementos generales
+
+//Hace la cabecera y contenedor del nodo
+function cabezaNodo(nom_p, nom_h, id_abue, id_pa, id_h, titulo) {
+  var titDiv = divE(
+    `titulo bordeDownDash`,
+    `${nom_h}_${id_pa}_${id_h}`,
+    `<b>${titulo}-conten(${nom_p}_${id_abue}_${id_pa}), titulo(${nom_h}_${id_pa}_${id_h})</b>`
+  );
+  var contenedor = divE(
+    `cabCols borde`,
+    `${nom_p}_${id_abue}_${id_pa}`,
+    titDiv
+  );
+  if (id_pa != -1) {
+    document
+      .getElementById(`${nom_p}_${id_abue}_${id_pa - 1}`)
+      .insertAdjacentHTML("afterend", contenedor);
+  } else {
+    document
+      .getElementById(`${nom_p}`)
+      .insertAdjacentHTML("afterend", contenedor);
+  }
+}
+
+//pone atributos despues de nom_h_idx-1
+function atributosNodo(nom_h, id_pa, id_h, titAtt, att) {
+  var atributos = "";
+  for (let i = 0; i < att.length; i++) {
+    let nameAt = divE(
+      "width12 textAlL flexGrow1",
+      "",
+      `<b>${titAtt[i]}_${nom_h}_${id_pa}_${id_h}: </b>`
+    );
+    let dataAt = divE(`width12 textAlL flexGrow1`, "", att[i]);
+    atributos += divE(`borde cabrows flexGrow1`, "", nameAt + dataAt);
+  }
+  var atributosCont = divE(
+    `flexWrap cabrows`,
+    `${nom_h}_${id_pa}_${id_h}`,
+    atributos
+  );
+  document
+    .getElementById(`${nom_h}_${id_pa}_${id_h - 1}`)
+    .insertAdjacentHTML("afterend", atributosCont);
+}
+
