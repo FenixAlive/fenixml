@@ -565,7 +565,7 @@ fn datos_cfdi(
                             }
                         }
                         _ => {
-                            nodo_xml(web, com, "complemento", 0, 0, 0, 0)?;
+                            nodo_xml(web, com, "pagos", 0, 0, 0, 0)?;
                             println!("falta en Complemento: {:?}", com.name);
                         }
                     }
@@ -584,7 +584,7 @@ fn datos_cfdi(
                 }
             }
             falta => {
-                nodo_xml(web, cf, "complemento", 0, 0, 0, 0)?;
+                nodo_xml(web, cf, "pagos", 0, 0, 0, 0)?;
                 println!("falta en cfdi: {}", falta);
             }
         }
