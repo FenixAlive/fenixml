@@ -349,8 +349,6 @@ fn datos_cfdi(
                                 ))?;
                             }
                             "ComplementoConcepto" => {
-                                //TODO:
-                                //ComplementoConcepto
                                 nodo_xml(
                                     web,
                                     impu_concep,
@@ -554,16 +552,22 @@ fn datos_cfdi(
                                                 }
                                             }
                                         }
-                                        falta => println!(
-                                            "Falta {} en pd dentro de complemento de pago",
-                                            falta
-                                        ),
+                                        falta => {
+                                            nodo_xml(web, pd, "pagos", 0, 0, 0, 0)?;
+                                            println!(
+                                                "Falta {} en pd dentro de complemento de pago",
+                                                falta
+                                            );
+                                        }
                                     }
                                 }
                                 id += 1;
                             }
                         }
-                        _ => println!("falta en Complemento: {:?}", com.name),
+                        _ => {
+                            nodo_xml(web, com, "complemento", 0, 0, 0, 0)?;
+                            println!("falta en Complemento: {:?}", com.name);
+                        }
                     }
                 }
             }
@@ -579,7 +583,10 @@ fn datos_cfdi(
                     idx_rel += 1;
                 }
             }
-            falta => println!("falta en cfdi: {}", falta),
+            falta => {
+                nodo_xml(web, cf, "complemento", 0, 0, 0, 0)?;
+                println!("falta en cfdi: {}", falta);
+            }
         }
     }
     let sello = get_data(&cfdi, "Sello");
@@ -983,6 +990,10 @@ fn nodo_xml(
     for child in el.children.iter() {
         let id_padre = id_nodo;
         let id_nodo = id_nodo + id_acomodo * 10_usize.pow(capa as u32);
+        println!(
+            "id_padre {}, id_nodo {}, capa: {},id_acomodo {}",
+            id_padre, id_nodo, capa, id_acomodo
+        );
         nodo_xml(web, child, &el.name, id_padre, capa, id_nodo, id_acomodo)?;
         id_acomodo += 1;
     }
