@@ -618,47 +618,60 @@ function debug(data) {
 //nuevos elementos generales
 
 //Hace la cabecera y contenedor del nodo
-function cabezaNodo(nom_p, nom_h, id_abue, id_pa, id_h, titulo) {
+function cabezaNodo(
+  nom_p,
+  id_padre,
+  el_name,
+  titulo,
+  capa,
+  id_nodo,
+  id_acomodo
+) {
+  debug(
+    `capa: ${capa}, ${el_name}: ${id_nodo}, padre: ${nom_p}_${id_padre}, acom: ${id_acomodo}`
+  );
   var titDiv = divE(
     `titulo bordeDownDash`,
-    `${nom_h}_${id_pa}_${id_h}`,
-    `<b>${titulo}-conten(${nom_p}_${id_abue}_${id_pa}), titulo(${nom_h}_${id_pa}_${id_h})</b>`
+    `${el_name}_${id_nodo}_titulo`,
+    `<b>${titulo}-capa: ${capa}-conten(${nom_p}_${id_nodo}), titulo(${el_name}_${id_nodo})</b>`
   );
+  var cuerpo = divE("cuerpo cabCols", `${el_name}_${id_nodo}_cuerpo`, "");
   var contenedor = divE(
     `cabCols borde`,
-    `${nom_p}_${id_abue}_${id_pa}`,
-    titDiv
+    `${nom_p}_${id_padre}`,
+    titDiv + cuerpo
   );
-  if (id_pa != -1) {
-    document
-      .getElementById(`${nom_p}_${id_abue}_${id_pa - 1}`)
-      .insertAdjacentHTML("afterend", contenedor);
-  } else {
+  if (capa == 0) {
     document
       .getElementById(`${nom_p}`)
+      .insertAdjacentHTML("afterend", contenedor);
+  } else if (id_acomodo == 0) {
+    document.getElementById(
+      `${nom_p}_${id_padre}_cuerpo`
+    ).innerHTML = contenedor;
+  } else {
+    document
+      .getElementById(`${nom_p}_${id_padre}`)
       .insertAdjacentHTML("afterend", contenedor);
   }
 }
 
 //pone atributos despues de nom_h_idx-1
-function atributosNodo(nom_h, id_pa, id_h, titAtt, att) {
+function atributosNodo(el_name, capa, id_nodo, titAtt, att) {
+  debug(`desde att: ${capa} ${el_name} ${id_nodo}`);
   var atributos = "";
   for (let i = 0; i < att.length; i++) {
-    let nameAt = divE(
-      "width12 textAlL flexGrow1",
-      "",
-      `<b>${titAtt[i]}_${nom_h}_${id_pa}_${id_h}: </b>`
-    );
+    let nameAt = divE("width12 textAlL flexGrow1", "", `<b>${titAtt[i]}: </b>`);
     let dataAt = divE(`width12 textAlL flexGrow1`, "", att[i]);
     atributos += divE(`borde cabrows flexGrow1`, "", nameAt + dataAt);
   }
   var atributosCont = divE(
     `flexWrap cabrows`,
-    `${nom_h}_${id_pa}_${id_h}`,
+    `${el_name}_${id_nodo}`,
     atributos
   );
-  document
-    .getElementById(`${nom_h}_${id_pa}_${id_h - 1}`)
-    .insertAdjacentHTML("afterend", atributosCont);
+  document.getElementById(
+    `${el_name}_${id_nodo}_cuerpo`
+  ).innerHTML = atributosCont;
 }
 

@@ -351,19 +351,27 @@ fn datos_cfdi(
                             "ComplementoConcepto" => {
                                 //TODO:
                                 //ComplementoConcepto
-                                //  Por pago de tercero, o por colegios, y por ieps
-                                //nom_p, el.name, capa, id_nodo, id_h, titulo
-                                web.eval(&format!(
-                                    "cabezaNodo('{}{}', '{}',  0, -1, 0, `{}`)",
-                                    "datosAd_",
-                                    idx_concep,
-                                    impu_concep.name,
-                                    camel_titulo(&impu_concep.name)
-                                ))?;
-                                //el nodo hermano debe ser nodo_p_mi_id-1
-                                nodo_xml(web, impu_concep, "datosAd_", 0, 0)?;
+                                nodo_xml(
+                                    web,
+                                    impu_concep,
+                                    &format!("datosAd_{}", idx_concep),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                )?;
                             }
-                            _ => {}
+                            _ => {
+                                nodo_xml(
+                                    web,
+                                    impu_concep,
+                                    &format!("datosAd_{}", idx_concep),
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                )?;
+                            }
                         }
                     }
                     idx_concep += 1;
@@ -941,17 +949,19 @@ fn nodo_xml(
     web: &mut web_view::WebView<'_, ()>,
     el: &Element,
     nom_p: &str,
+    id_padre: usize,
     capa: usize,
     id_nodo: usize,
+    id_acomodo: usize,
 ) -> Result<(), web_view::Error> {
-    println!("capa: {}, nom_p: {}, id_nodo: {}", capa, nom_p, id_nodo);
     let titulo = camel_titulo(&el.name);
     if el.attributes.len() > 0 || el.children.len() > 0 {
         web.eval(&format!(
-            "cabezaNodo(`{}`, '{}', {}, {}, `{}`)",
-            nom_p, el.name, capa, id_nodo, titulo
+            "cabezaNodo(`{}`, {}, '{}', '{}', {}, {}, {})",
+            nom_p, id_padre, el.name, titulo, capa, id_nodo, id_acomodo
         ))?;
     }
+    let mut id_acomodo = 0;
     if el.attributes.len() > 0 {
         let mut tit_at = String::new();
         let mut att = String::new();
@@ -967,12 +977,14 @@ fn nodo_xml(
             &tit_at[1..],
             &att[1..]
         ))?;
+        id_acomodo += 1;
     }
     let capa = capa + 1;
-    for (i, child) in el.children.iter().enumerate() {
-        let id_nodo = id_nodo + i * 10_usize.pow(capa as u32);
-        println!("{}", id_nodo);
-        nodo_xml(web, child, &el.name, capa, id_nodo)?;
+    for child in el.children.iter() {
+        let id_padre = id_nodo;
+        let id_nodo = id_nodo + id_acomodo * 10_usize.pow(capa as u32);
+        nodo_xml(web, child, &el.name, id_padre, capa, id_nodo, id_acomodo)?;
+        id_acomodo += 1;
     }
     Ok(())
 }

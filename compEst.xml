@@ -1,0 +1,12 @@
+﻿-1      <cfdi:ComplementoConcepto>
+0        <cfdi:PorCuentadeTerceros version="1.1" rfc="nose121212123" nombre="Martha Aguilar Rodriguez">
+ 00         <cfdi:InformacionAduanera NumeroPedimento="2020-14-84porcuentaterceros" />
+ 10         <cfdi:CuentaPredial Numero="123456" />
+ 20         <cfdi:Parte NoIdentificacion="1241" ClaveProdServ="84111506" Cantidad="1" Unidad="ACT" Descripcion="Pago" ValorUnitario="0" Importe="0">
+   020         <cfdi:InformacionAduanera NumeroPedimento="2020-14-84111dentrodeparte" />
+ 30         <cfdi:Retenciones>
+   030         <cfdi:Retencion Impuesto="ISR" Importe="100.10" />
+ 40         <cfdi:Traslados>
+   040         <cfdi:Traslado Impuesto="IVA" Tasa="0.160000" Importe="300.13"/>
+1        <cfdi:instEducativas>
+2        <cfdi:acreditamientoIEPS>
