@@ -984,6 +984,7 @@ fn nodo_xml(
             &tit_at[1..],
             &att[1..]
         ))?;
+        
         id_acomodo += 1;
     }
     let capa = capa + 1;
@@ -991,8 +992,8 @@ fn nodo_xml(
         let id_padre = id_nodo;
         let id_nodo = id_nodo + id_acomodo * 10_usize.pow(capa as u32);
         println!(
-            "id_padre {}, id_nodo {}, capa: {},id_acomodo {}",
-            id_padre, id_nodo, capa, id_acomodo
+            "nom_p: {}, id_padre {}, id_nodo {}, capa: {},id_acomodo {}",
+            el.name, id_padre, id_nodo, capa, id_acomodo
         );
         nodo_xml(web, child, &el.name, id_padre, capa, id_nodo, id_acomodo)?;
         id_acomodo += 1;

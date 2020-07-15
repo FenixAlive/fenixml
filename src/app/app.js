@@ -501,17 +501,6 @@ function parteConcep(idx, req, opc, ped) {
   );
 }
 
-//TODO:
-//informacion ComplementoConcepto
-function complementoConcep(idx, data) {
-  debug(data);
-  document.getElementById(`datosAd_${idx}`).insertAdjacentHTML(
-    "afterend",
-    `<div class="borde cabCols" id="${nombre}Cabe_${idx}">
-    </div>`
-  );
-}
-
 //funciones internas para acortar codigo
 /*
  <div id="idCabe_idx">
@@ -617,6 +606,7 @@ function debug(data) {
 
 //nuevos elementos generales
 
+//TODO: hago pruebas con el complementoConcepto y en windows y lo doy por terminado para quitar debugs
 //Hace la cabecera y contenedor del nodo
 function cabezaNodo(
   nom_p,
@@ -627,21 +617,35 @@ function cabezaNodo(
   id_nodo,
   id_acomodo
 ) {
+  var color1, color2;
+  if(capa % 2 == 0){
+    color1 ="prim1";
+    color2 ="prim2";
+  }else{
+    color1 ="prim3";
+    color2 ="prim4";
+
+  }
   debug(
     `capa: ${capa}, ${el_name}: ${id_nodo}, padre: ${nom_p}_${id_padre}, acom: ${id_acomodo}`
   );
   var titDiv = divE(
-    `titulo bordeDownDash`,
+    `titulo bordeDownDash ${color1}`,
     `${el_name}_${id_nodo}_titulo`,
-    `<b>${titulo}-capa: ${capa}-conten(${nom_p}_${id_nodo}), titulo(${el_name}_${id_nodo})</b>`
+    `<b>${titulo}</b>`
   );
   var cuerpo = divE("cuerpo cabCols", `${el_name}_${id_nodo}_cuerpo`, "");
   var contenedor = divE(
     `cabCols borde`,
-    `${nom_p}_${id_padre}`,
+    `${nom_p}_${id_padre}_${id_acomodo}`,
     titDiv + cuerpo
   );
   if (capa == 0) {
+    var contenedor = divE(
+      `cabCols borde`,
+      `${el_name}_${id_nodo}`,
+      titDiv + cuerpo
+    );
     document
       .getElementById(`${nom_p}`)
       .insertAdjacentHTML("afterend", contenedor);
@@ -651,9 +655,24 @@ function cabezaNodo(
     ).innerHTML = contenedor;
   } else {
     document
-      .getElementById(`${nom_p}_${id_padre}`)
+      .getElementById(`${nom_p}_${id_padre}_${id_acomodo-1}`)
       .insertAdjacentHTML("afterend", contenedor);
   }
+  var base = document.getElementById(`${el_name}_${id_nodo}_titulo`);
+  var borrable = document.getElementById(`${el_name}_${id_nodo}_cuerpo`);
+  borrable.style.display = "none";
+  //evento al click
+  base.addEventListener("click", () => {
+    if (borrable.style.display == "none") {
+      borrable.style.display = "flex";
+      base.classList.add(color2);
+      base.classList.remove(color1);
+    } else {
+      base.classList.remove(color2);
+      base.classList.add(color1);
+      borrable.style.display = "none";
+    }
+  });
 }
 
 //pone atributos despues de nom_h_idx-1
@@ -667,7 +686,7 @@ function atributosNodo(el_name, capa, id_nodo, titAtt, att) {
   }
   var atributosCont = divE(
     `flexWrap cabrows`,
-    `${el_name}_${id_nodo}`,
+    `${el_name}_${id_nodo}_0`,
     atributos
   );
   document.getElementById(

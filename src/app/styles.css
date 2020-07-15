@@ -6,10 +6,12 @@
   font-family: Serif, 'Courier New', Courier, monospace;
   text-align: center;
 }
+
 div{
   overflow: hidden;
   overflow-wrap: break-word;
 }
+
 #appContainer{
   min-width: 600px;
   display: -webkit-box;
@@ -21,27 +23,33 @@ div{
   justify-content: center;
   flex-wrap: nowrap;
 }
+
 #container{
   margin: 1em 0 19px 0;
   width: 90%;
   background-color: #f9f9f9;
   box-shadow: 1px 1px 1px #979797;
 }
+
 .cabCols, .cabColsStart{
   display: flex;
   flex-direction: column;
 }
+
 .cabCols{
   justify-content: space-around;
 }
+
 .cabColsStart{
   justify-content: flex-start;
 }
+
 .cabrows, .cabrowsStart{
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
 }
+
 .cabrows{
   justify-content: space-around;
 }
