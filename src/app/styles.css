@@ -5,6 +5,7 @@
   color: #232323;
   font-family: Serif, 'Courier New', Courier, monospace;
   text-align: center;
+  box-sizing: border-box;
 }
 
 div{
@@ -151,12 +152,7 @@ img{
 .prim4:hover{
   background: #5fc7c3;
 }
-/*Quitar al final*/
-div{
-  border: 0.5px dashed #aaf;
-  margin: 1px;
 
-}  
 @media (min-width: 750px) { 
   *{
     font-size: 10px;

@@ -7,7 +7,7 @@ use ureq;
 use web_view::*;
 use xmltree::Element;
 
-//TODO: hacer nomina y complementoConcepto
+//TODO: hacer asincrona la validación, terminar vista css, agregar boton a parte
 //cambiar el titulo final webview, descomentar primera linea y debug(false)
 fn main() {
     // webview
@@ -147,35 +147,17 @@ fn datos_cfdi(
         let fecha_t = separar_datetime(fecha);
         fecha_c = format!("{} a las {} hrs", fecha_t.0, fecha_t.1);
     }
-    web.eval(&format!(
-        "rellenarCabe('{}', '{}', '{}')",
-        "fecha", "Fecha", fecha_c
-    ))?;
+    solo_manda_rellenar(web, "fecha", "Fecha", &fecha_c, true)?;
     tipo_cfdi(web, cfdi)?;
     let metodo_p = metodo_pago(cfdi, "MetodoPago")?;
-    web.eval(&format!(
-        "rellenar('metodoPago', 'Metodo de Pago', '{}')",
-        metodo_p
-    ))?;
+    solo_manda_rellenar(web, "metodoPago", "Metodo de Pago", &metodo_p, false)?;
     let forma_p = forma_pago(cfdi, "FormaPago")?;
-    web.eval(&format!(
-        "rellenar('formaPago', 'Forma de Pago', '{}')",
-        forma_p
-    ))?;
+    //solo_manda_rellenar(web, id_html, tit_html, dato, borde)
+    solo_manda_rellenar(web, "formaPago", "Forma de Pago", &forma_p, false)?;
     let subtotal = get_data(&cfdi, "SubTotal");
-    web.eval(&format!(
-        "rellenar('{}', '{}', '{}')",
-        "subtotal",
-        "Subtotal",
-        format_money(subtotal)
-    ))?;
+    solo_manda_rellenar(web, "subtotal", "Subtotal", &format_money(subtotal), false)?;
     let total = get_data(&cfdi, "Total");
-    web.eval(&format!(
-        "rellenar('{}', '{}', '{}')",
-        "total",
-        "Total",
-        format_money(total)
-    ))?;
+    solo_manda_rellenar(web, "total", "Total", &format_money(total), false)?;
     //si hay descuento mostrar linea de neto subtotal
     let descuento = get_data(&cfdi, "Descuento");
     if descuento != "" {
@@ -188,18 +170,20 @@ fn datos_cfdi(
             Err(_) => 0.0,
         };
         let suma_sub = &format!("{:.2}", (sub_num - des_num));
-        web.eval(&format!(
-            "rellenar('{}', '{}', '- {}')",
+        solo_manda_rellenar(
+            web,
             "descuento",
             "Descuento",
-            format_money(descuento)
-        ))?;
-        web.eval(&format!(
-            "rellenar('{}', '{}', '{}')",
+            &format!("- {}", format_money(descuento)),
+            false,
+        )?;
+        solo_manda_rellenar(
+            web,
             "subNeto",
             "Subtotal Neto",
-            format_money(suma_sub)
-        ))?;
+            &format_money(suma_sub),
+            false,
+        )?;
     }
     //si el tipo de cambio existe y es distinto de 1 hacer calculo  de total en pesos y mandarlo
     let tipo_cambio = get_data(&cfdi, "TipoCambio");
@@ -213,57 +197,62 @@ fn datos_cfdi(
             Err(_) => 0.0,
         };
         let total_pesos = format!("{}", total_num * tipo_cambio_num);
-        web.eval(&format!(
-            "rellenar('{}', '{}', '{}')",
+        solo_manda_rellenar(
+            web,
             "tipoCambio",
             "Tipo de Cambio",
-            format_money(tipo_cambio)
-        ))?;
-        web.eval(&format!(
-            "rellenar('{}', '{}', '{}')",
+            &format_money(tipo_cambio),
+            false,
+        )?;
+        solo_manda_rellenar(
+            web,
             "totalPesos",
             "Total en Pesos",
-            format_money(&total_pesos)
-        ))?;
+            &format_money(&total_pesos),
+            false,
+        )?;
     }
-    mandar_datos_web_view_cabe(web, cfdi, "Serie", "serie", "Serie")?;
-    mandar_datos_web_view_cabe(web, cfdi, "Folio", "folio", "Folio")?;
-    mandar_datos_web_view_cabe(web, cfdi, "LugarExpedicion", "lugarExp", "C.P. Expedición")?;
-    mandar_datos_web_view(web, cfdi, "Version", "versionCfdi", "Versión CFDI")?;
+    mandar_datos_web_view(web, cfdi, "Serie", "serie", "Serie", true)?;
+    mandar_datos_web_view(web, cfdi, "Folio", "folio", "Folio", true)?;
+    mandar_datos_web_view(
+        web,
+        cfdi,
+        "LugarExpedicion",
+        "lugarExp",
+        "C.P. Expedición",
+        true,
+    )?;
+    mandar_datos_web_view(web, cfdi, "Version", "versionCfdi", "Versión CFDI", false)?;
     mandar_datos_web_view(
         web,
         cfdi,
         "CondicionesDePago",
         "condicionesPago",
         "Condiciones de Pago",
+        false,
     )?;
-    mandar_datos_web_view(web, cfdi, "Moneda", "moneda", "Moneda")?;
+    mandar_datos_web_view(web, cfdi, "Moneda", "moneda", "Moneda", false)?;
     mandar_datos_web_view(
         web,
         cfdi,
         "NoCertificado",
         "certEmi",
         "Numero de Certificado Emisór",
+        false,
     )?;
     //iterar cfdi
     for cf in cfdi.children.iter() {
         match cf.name.as_ref() {
             "Emisor" => {
                 rfc_emi = get_data(cf, "Rfc");
-                web.eval(&format!(
-                    "rellenar('{}', '{}', '{}')",
-                    "rfcEmi", "RFC Emisor", rfc_emi
-                ))?;
-                mandar_datos_web_view(web, cf, "Nombre", "razonEmi", "Razón Social")?;
+                solo_manda_rellenar(web, "rfcEmi", "RFC Emisor", rfc_emi, false)?;
+                mandar_datos_web_view(web, cf, "Nombre", "razonEmi", "Razón Social", false)?;
                 regimen_fiscal(web, cf)?;
             }
             "Receptor" => {
                 rfc_rec = get_data(cf, "Rfc");
-                web.eval(&format!(
-                    "rellenar('{}', '{}', '{}')",
-                    "rfcRec", "RFC Receptor", rfc_rec
-                ))?;
-                mandar_datos_web_view(web, cf, "Nombre", "razonRec", "Razón Social")?;
+                solo_manda_rellenar(web, "rfcRec", "RFC Receptor", rfc_rec, false)?;
+                mandar_datos_web_view(web, cf, "Nombre", "razonRec", "Razón Social", false)?;
                 uso_cfdi(web, cf)?;
             }
             "Conceptos" => {
@@ -323,6 +312,9 @@ fn datos_cfdi(
                                     at_req =
                                         format!("{}, '{}'", at_req, get_data(&impu_concep, info));
                                 }
+                                if at_req.len() > 1 {
+                                    at_req = String::from(&at_req[1..]);
+                                }
                                 //  Opcionales: NoIdentificacion, Unidad, ValorUnitario, Importe
                                 let mut at_opc = String::from("");
                                 let at_opc_iter =
@@ -330,6 +322,9 @@ fn datos_cfdi(
                                 for info in at_opc_iter.iter() {
                                     at_opc =
                                         format!("{}, '{}'", at_opc, get_data(&impu_concep, info));
+                                }
+                                if at_opc.len() > 1 {
+                                    at_opc = String::from(&at_opc[1..]);
                                 }
                                 //  nodo interno: InformacionAduanera con Atributo: NumeroPedimento
                                 let mut num_ped = String::new();
@@ -340,12 +335,12 @@ fn datos_cfdi(
                                         get_data(&info_ad, "NumeroPedimento")
                                     );
                                 }
+                                if num_ped.len() > 1 {
+                                    num_ped = String::from(&num_ped[1..]);
+                                }
                                 web.eval(&format!(
                                     "parteConcep('{}', [{}], [{}], [{}])",
-                                    idx_concep,
-                                    &at_req[1..],
-                                    &at_opc[1..],
-                                    &num_ped[1..]
+                                    idx_concep, at_req, &at_opc, &num_ped
                                 ))?;
                             }
                             "ComplementoConcepto" => {
@@ -407,16 +402,20 @@ fn datos_cfdi(
                                 let fecha_tem = separar_datetime(fecha_tim);
                                 fecha_c = format!("{} a las {} hrs", fecha_tem.0, fecha_tem.1);
                             }
-                            web.eval(&format!(
-                                "rellenar('{}', '{}', '{}')",
-                                "fechaTimbre", "Fecha de Timbrado", fecha_c
-                            ))?;
+                            solo_manda_rellenar(
+                                web,
+                                "fechaTimbre",
+                                "Fecha de Timbrado",
+                                &fecha_c,
+                                false,
+                            )?;
                             mandar_datos_web_view(
                                 web,
                                 com,
                                 "NoCertificadoSAT",
                                 "certSat",
                                 "Numero de Certificado SAT",
+                                false,
                             )?;
                             web.eval(&format!(
                                 "rellenar_cortado('{}', '{}', '{}')",
@@ -425,10 +424,7 @@ fn datos_cfdi(
                                 get_data(&com, "SelloSAT")
                             ))?;
                             uuid = get_data(&com, "UUID");
-                            web.eval(&format!(
-                                "rellenarCabe('{}', '{}', '{}')",
-                                "uuid", "Folio Fiscal UUID", uuid
-                            ))?;
+                            solo_manda_rellenar(web, "uuid", "Folio Fiscal UUID", uuid, true)?;
                             let mut leyenda = String::from(get_data(&com, "Leyenda"));
                             if leyenda != "" {
                                 leyenda = format!("|{}", leyenda);
@@ -478,6 +474,9 @@ fn datos_cfdi(
                                     otros_datos =
                                         format!("{}, '{}'", otros_datos, get_data(pago, val));
                                 }
+                                if otros_datos.len() > 1 {
+                                    otros_datos = String::from(&otros_datos[1..]);
+                                }
                                 //TODO: temporal quitar siguiente linea otros_datos
                                 otros_datos = String::from(" 'hola','ajasdf asdasdgasdg asgafgaf adfgadfgadfg adfgadfgadf', 'como', 'rfcEmisor', 'sfdasdfasdfasdfasdfasdfasdasdf', 'aAS8823SD8sdff8223Aasd sdfsdfa aASDJKHJJK', 'ultima','sdfasdasdg asdasdfasfasd asdfasdf' ,'seaeavasasd asdasdradsfasdewfawecawec asdcawerasedasdasdcaewfasdcasdawefascdaersdcarq4513453451345qwefqewasdcq341234sdedasadQWEASDqwdASDwedasdASCewdsdASDASDASDasdfwesdd', '10 asdfewsdfsd asdasdfasdfasdfasdf', '11 asdassadASDsA SDA'" );
                                 web.eval(&format!(
@@ -487,7 +486,7 @@ fn datos_cfdi(
                                     forma_p,
                                     get_data(pago, "MonedaP"),
                                     format_money(get_data(pago, "Monto")),
-                                    &otros_datos[1..]
+                                    otros_datos
                                 ))?;
                                 let mut id_pd = 0;
                                 for pd in pago.children.iter() {
@@ -522,11 +521,12 @@ fn datos_cfdi(
                                                 }
                                                 datos_rel = format!("{}, '{}'", datos_rel, data);
                                             }
+                                            if datos_rel.len() > 1 {
+                                                datos_rel = String::from(&datos_rel[1..]);
+                                            }
                                             web.eval(&format!(
                                                 "docPago({}, {}, [ {} ])",
-                                                id,
-                                                id_pd,
-                                                &datos_rel[1..]
+                                                id, id_pd, &datos_rel
                                             ))?;
                                             id_pd += 1;
                                         }
@@ -552,12 +552,8 @@ fn datos_cfdi(
                                                 }
                                             }
                                         }
-                                        falta => {
+                                        _ => {
                                             nodo_xml(web, pd, "pagos", 0, 0, 0, 0)?;
-                                            println!(
-                                                "Falta {} en pd dentro de complemento de pago",
-                                                falta
-                                            );
                                         }
                                     }
                                 }
@@ -566,7 +562,6 @@ fn datos_cfdi(
                         }
                         _ => {
                             nodo_xml(web, com, "pagos", 0, 0, 0, 0)?;
-                            println!("falta en Complemento: {:?}", com.name);
                         }
                     }
                 }
@@ -583,9 +578,8 @@ fn datos_cfdi(
                     idx_rel += 1;
                 }
             }
-            falta => {
+            _ => {
                 nodo_xml(web, cf, "pagos", 0, 0, 0, 0)?;
-                println!("falta en cfdi: {}", falta);
             }
         }
     }
@@ -611,28 +605,24 @@ fn mandar_datos_web_view(
     cfdi: &Element,
     at_xml: &str,
     id_html: &str,
-    tit_htlm: &str,
+    tit_html: &str,
+    borde: bool,
 ) -> Result<String, web_view::Error> {
     let dato = get_data(&cfdi, at_xml);
-    web.eval(&format!(
-        "rellenar('{}', '{}', '{}')",
-        id_html, tit_htlm, dato
-    ))?;
+    solo_manda_rellenar(web, id_html, tit_html, dato, borde)?;
     Ok(dato.to_string())
 }
 
-//ver si puedo juntar las dos para cabecera y rellenar normal
-fn mandar_datos_web_view_cabe(
+fn solo_manda_rellenar(
     web: &mut web_view::WebView<'_, ()>,
-    cfdi: &Element,
-    at_xml: &str,
     id_html: &str,
-    tit_htlm: &str,
+    tit_html: &str,
+    dato: &str,
+    borde: bool,
 ) -> Result<String, web_view::Error> {
-    let dato = get_data(&cfdi, at_xml);
     web.eval(&format!(
-        "rellenarCabe('{}', '{}', '{}')",
-        id_html, tit_htlm, dato
+        "rellenar('{}', '{}', '{}', {})",
+        id_html, tit_html, dato, borde
     ))?;
     Ok(dato.to_string())
 }
@@ -641,19 +631,21 @@ fn mandar_datos_web_view_cabe(
 fn get_data<'a>(cfdi: &'a Element, key: &str) -> &'a str {
     match cfdi.attributes.get(key) {
         Some(d) => {
-            //println!("{}: {}", key, d);
             return d;
         }
         None => {
-            //println!("{} no esta en get_data", key);
             return "";
         }
     };
 }
 
+//toma el string date time, quita la T y separa la fecha de la hora
 fn separar_datetime(datetime: &str) -> (String, String) {
     let dt_sp: Vec<&str> = datetime.split("T").collect();
-    (dt_sp[0].to_string(), dt_sp[1].to_string())
+    if dt_sp.len() == 2 {
+        return (dt_sp[0].to_string(), dt_sp[1].to_string());
+    }
+    (datetime.to_string(), String::new())
 }
 
 //completa el tipo de impuesto
@@ -674,6 +666,7 @@ fn completar_impuesto(imp: &str) -> String {
     format!("{}-{}", imp, val)
 }
 
+//completa tipo de CFDI
 fn tipo_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: &Element) -> Result<(), web_view::Error> {
     let tipo_hash: HashMap<&str, &str> = [
         ("I", "Ingreso"),
@@ -687,16 +680,18 @@ fn tipo_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: &Element) -> Result<(), 
     .collect();
     let key = get_data(&cfdi, "TipoDeComprobante");
     if let Some(tipo) = tipo_hash.get(key) {
-        web.eval(&format!(
-            "rellenarCabe('{}', '{}', '{}')",
+        solo_manda_rellenar(
+            web,
             "tipoComp",
             "Tipo Comprobante",
-            format!("{} - {}", key, tipo)
-        ))?;
+            &format!("{} - {}", key, tipo),
+            true,
+        )?;
     }
     Ok(())
 }
 
+//completa el tipo de relacion
 fn tipo_relacion(
     web: &mut web_view::WebView<'_, ()>,
     cfdi: &Element,
@@ -728,6 +723,7 @@ fn tipo_relacion(
     Ok(())
 }
 
+//completa el regimen fiscal
 fn regimen_fiscal(
     web: &mut web_view::WebView<'_, ()>,
     cfdi: &Element,
@@ -775,14 +771,18 @@ fn regimen_fiscal(
     .collect();
     let key = get_data(&cfdi, "RegimenFiscal");
     if let Some(tipo) = tipo_reg.get(key) {
-        web.eval(&format!(
-            "rellenar('regimenEmi', 'Regimen Fiscal', '{}')",
-            format!("{} - {}", key, tipo)
-        ))?;
+        solo_manda_rellenar(
+            web,
+            "regimenEmi",
+            "Regimen Fiscal",
+            &format!("{} - {}", key, tipo),
+            false,
+        )?;
     }
     Ok(())
 }
 
+//completa el metodo de pago
 fn metodo_pago(cfdi: &Element, tit: &str) -> Result<String, web_view::Error> {
     let key = get_data(&cfdi, tit);
     let dato: &str;
@@ -796,6 +796,7 @@ fn metodo_pago(cfdi: &Element, tit: &str) -> Result<String, web_view::Error> {
     Ok(dato.to_string())
 }
 
+//completa la forma de pago
 fn forma_pago(cfdi: &Element, tit: &str) -> Result<String, web_view::Error> {
     let forma: HashMap<&str, &str> = [
         ("01", "Efectivo"),
@@ -831,6 +832,7 @@ fn forma_pago(cfdi: &Element, tit: &str) -> Result<String, web_view::Error> {
     Ok(key.to_string())
 }
 
+//completa el uso del CFDI
 fn uso_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: &Element) -> Result<(), web_view::Error> {
     let tipo_rel: HashMap<&str, &str> = [
         ("G01", "Adquisición de mercancias"),
@@ -870,10 +872,13 @@ fn uso_cfdi(web: &mut web_view::WebView<'_, ()>, cfdi: &Element) -> Result<(), w
     .collect();
     let key = get_data(&cfdi, "UsoCFDI");
     if let Some(tipo) = tipo_rel.get(key) {
-        web.eval(&format!(
-            "rellenar('usoCfdi', 'Uso CFDI', '{}')",
-            format!("{} - {}", key, tipo)
-        ))?;
+        solo_manda_rellenar(
+            web,
+            "usoCfdi",
+            "Uso CFDI",
+            &format!("{} - {}", key, tipo),
+            false,
+        )?;
     }
     Ok(())
 }
@@ -896,7 +901,6 @@ fn validar_cfdi_sat(rfc_emit: &str, rfc_recib: &str, total: &str, uuid: &str) ->
             )
             .timeout_connect(3_000) //al hacerlo asincrono puedes dejarlo mas tiempo
             .send_string(&cuerpo);
-    //println!("{:?}", resp);
     let es_valido;
     if resp.ok() {
         if let Ok(res) = resp.into_string() {
@@ -944,7 +948,7 @@ fn camel_titulo(st: &str) -> String {
         }
         c_b = c_hex;
     }
-    if corte_ant != 0 {
+    if corte_ant != 0 && st.len() > 1 {
         format!("{} {}", &string_final[1..], &st[corte_ant..lenst])
     } else {
         st.to_string()
@@ -970,31 +974,59 @@ fn nodo_xml(
     }
     let mut id_acomodo = 0;
     if el.attributes.len() > 0 {
+        let val_money = [
+            "Importe",
+            "ValorUnitario",
+            "Base",
+            "Descuento",
+            "SubTotal",
+            "TotalPercepciones",
+            "TotalOtrosPagos",
+            "TotalDeducciones",
+            "SalarioDiarioIntegrado",
+            "SalarioBaseCotApor",
+            "TotalSueldos",
+            "TotalExento",
+            "TotalGravado",
+            "ImporteExento",
+            "ImporteGravado",
+            "SubsidioCausado",
+        ];
         let mut tit_at = String::new();
         let mut att = String::new();
         for (name, data) in &el.attributes {
             tit_at = format!("{}, '{}'", tit_at, camel_titulo(name));
-            att = format!("{}, '{}'", att, data);
+            let mut es_money = false;
+            for val in val_money.iter() {
+                if val == name {
+                    es_money = true;
+                    break;
+                }
+            }
+            if es_money {
+                att = format!("{}, '{}'", att, format_money(data));
+            } else if name == "Impuesto" {
+                att = format!("{}, '{}'", att, completar_impuesto(data));
+            } else {
+                att = format!("{}, '{}'", att, data);
+            }
+        }
+        if tit_at.len() > 1 {
+            tit_at = String::from(&tit_at[1..]);
+        }
+        if att.len() > 1 {
+            att = String::from(&att[1..]);
         }
         web.eval(&format!(
             "atributosNodo(`{}`,{}, {}, [ {} ], [{}])",
-            el.name,
-            capa,
-            id_nodo,
-            &tit_at[1..],
-            &att[1..]
+            el.name, capa, id_nodo, &tit_at, &att
         ))?;
-        
         id_acomodo += 1;
     }
     let capa = capa + 1;
     for child in el.children.iter() {
         let id_padre = id_nodo;
         let id_nodo = id_nodo + id_acomodo * 10_usize.pow(capa as u32);
-        println!(
-            "nom_p: {}, id_padre {}, id_nodo {}, capa: {},id_acomodo {}",
-            el.name, id_padre, id_nodo, capa, id_acomodo
-        );
         nodo_xml(web, child, &el.name, id_padre, capa, id_nodo, id_acomodo)?;
         id_acomodo += 1;
     }

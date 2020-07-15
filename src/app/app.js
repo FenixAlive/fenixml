@@ -130,15 +130,8 @@ function addTrasRetConcep(
   document.getElementById(`trasRetConcep_${idx}_${id - 1}`).insertAdjacentHTML(
     "afterend",
     `<div id="trasRetConcep_${idx}_${id}" class="retConcepCont cabrows datosAdCol">
-                                                                                            ${trasRetConcepData(
-                                                                                              name,
-                                                                                              impuesto,
-                                                                                              base,
-                                                                                              tipoFactor,
-                                                                                              tasa,
-                                                                                              importe
-                                                                                            )}
-                                                                                          </div>`
+      ${trasRetConcepData(name, impuesto, base, tipoFactor, tasa, importe)}
+    </div>`
   );
 }
 
@@ -173,14 +166,13 @@ function addTrasRetImp(idx, tipo, impuesto, factor, tasa, importe) {
   );
 }
 
-//agrega titulo y datos alineados a la derecha los datos
-function rellenar(id, titulo, data) {
-  reInfoTitData(id, "cabrowsStart flexGrow1", "textAlR", titulo, data);
-}
-
-//agrega titulo y datos alineados a la izquierda los datos
-function rellenarCabe(id, titulo, data) {
-  reInfoTitData(id, "cabrowsStart flexGrow1 borde", "textAlL", titulo, data);
+//agrega titulo y datos alineados a la derecha o a la izquierda con borde
+function rellenar(id, titulo, data, borde) {
+  if (borde) {
+    reInfoTitData(id, "cabrowsStart flexGrow1 borde", "textAlL", titulo, data);
+  } else {
+    reInfoTitData(id, "cabrowsStart flexGrow1", "textAlR", titulo, data);
+  }
 }
 
 //agrega titulo y datos en distinstas filas
@@ -453,7 +445,6 @@ function infoAduCuentaPred(idx, nombre, titulo, data) {
   rellenar(`${nombre}Cont_${idx}`, titulo, data);
 }
 
-//TODO:
 //informacion de parte dentro de concepto
 function parteConcep(idx, req, opc, ped) {
   var titReq = ["Clave Producto/Servicio", "Cantidad", "Descripción"];
@@ -464,14 +455,14 @@ function parteConcep(idx, req, opc, ped) {
     if (req[i] != "") {
       let tit = divE("width12 textAlL flexGrow1", "", `<b>${titReq[i]}: </b>`);
       let dat = divE(`width12 textAlL flexGrow1`, "", req[i]);
-      dataRequerida += divE("flexGrow1 cabrows", "", tit + dat);
+      dataRequerida += divE("flexGrow1 cabrows borde", "", tit + dat);
     }
   }
   for (let i = 0; i < opc.length; i++) {
     if (opc[i] != "") {
       let tit = divE("width12 textAlL flexGrow1", "", `<b>${titOp[i]}: </b>`);
       let dat = divE(`width12 textAlL flexGrow1`, "", opc[i]);
-      dataOp += divE("flexGrow1 cabrows", "", tit + dat);
+      dataOp += divE("flexGrow1 cabrows borde", "", tit + dat);
     }
   }
   var opcional = "";
@@ -487,18 +478,22 @@ function parteConcep(idx, req, opc, ped) {
         `<b>Información Aduanera - Numero de Pedimento: </b>`
       );
       let dat = divE(`width12 textAlR flexGrow1`, "", ped[i]);
-      pedimento += divE("flexGrow1 cabrows", "", tit + dat);
+      pedimento += divE("flexGrow1 cabrows borde", "", tit + dat);
     }
   }
+  var colorTit = "prim3";
   document.getElementById(`datosAd_${idx}`).insertAdjacentHTML(
     "afterend",
     `<div class="borde cabCols" id="parteConcepCont_${idx}">
-      <div id="parteConCabe_${idx}" class=""><b>Parte</b></div>
+      <div id="parteConCabe_${idx}" class="bordeDownDash ${colorTit}"><b>Parte</b></div>
+      <div id="parteCuerpo_${idx}" class="cabCols">
       <div id="parteConReq_${idx}" class="cabrows">${dataRequerida}</div>
       ${opcional}
       ${pedimento}
+      </div>
     </div>`
   );
+  soloClicker(`parteConCabe_${idx}`, `parteCuerpo_${idx}`, colorTit, "prim4");
 }
 
 //funciones internas para acortar codigo
@@ -521,12 +516,15 @@ function elementoClickeable(
   document
     .getElementById(`${idCabe}_${idx - 1}`)
     .insertAdjacentHTML("afterend", htmlAgreg);
-  var base = document.getElementById(`${idBase}_${idx}`);
-  var borrable = document.getElementById(`${idDet}_${idx}`);
+  soloClicker(`${idBase}_${idx}`, `${idDet}_${idx}`, color1, color2);
+}
+
+function soloClicker(idBase, idDet, color1, color2) {
+  var base = document.getElementById(idBase);
+  var borrable = document.getElementById(idDet);
   borrable.style.display = "none";
   //evento al click
   base.addEventListener("click", () => {
-    //var disp = document.getElementById(`${idDet}_${idx}`).style.display;
     if (borrable.style.display == "none") {
       borrable.style.display = "flex";
       base.classList.add(color2);
@@ -604,9 +602,6 @@ function debug(data) {
   window.external.invoke(data);
 }
 
-//nuevos elementos generales
-
-//TODO: hago pruebas con el complementoConcepto y en windows y lo doy por terminado para quitar debugs
 //Hace la cabecera y contenedor del nodo
 function cabezaNodo(
   nom_p,
@@ -618,17 +613,13 @@ function cabezaNodo(
   id_acomodo
 ) {
   var color1, color2;
-  if(capa % 2 == 0){
-    color1 ="prim1";
-    color2 ="prim2";
-  }else{
-    color1 ="prim3";
-    color2 ="prim4";
-
+  if (capa % 2 == 0) {
+    color1 = "prim1";
+    color2 = "prim2";
+  } else {
+    color1 = "prim3";
+    color2 = "prim4";
   }
-  debug(
-    `capa: ${capa}, ${el_name}: ${id_nodo}, padre: ${nom_p}_${id_padre}, acom: ${id_acomodo}`
-  );
   var titDiv = divE(
     `titulo bordeDownDash ${color1}`,
     `${el_name}_${id_nodo}_titulo`,
@@ -655,29 +646,19 @@ function cabezaNodo(
     ).innerHTML = contenedor;
   } else {
     document
-      .getElementById(`${nom_p}_${id_padre}_${id_acomodo-1}`)
+      .getElementById(`${nom_p}_${id_padre}_${id_acomodo - 1}`)
       .insertAdjacentHTML("afterend", contenedor);
   }
-  var base = document.getElementById(`${el_name}_${id_nodo}_titulo`);
-  var borrable = document.getElementById(`${el_name}_${id_nodo}_cuerpo`);
-  borrable.style.display = "none";
-  //evento al click
-  base.addEventListener("click", () => {
-    if (borrable.style.display == "none") {
-      borrable.style.display = "flex";
-      base.classList.add(color2);
-      base.classList.remove(color1);
-    } else {
-      base.classList.remove(color2);
-      base.classList.add(color1);
-      borrable.style.display = "none";
-    }
-  });
+  soloClicker(
+    `${el_name}_${id_nodo}_titulo`,
+    `${el_name}_${id_nodo}_cuerpo`,
+    color1,
+    color2
+  );
 }
 
 //pone atributos despues de nom_h_idx-1
 function atributosNodo(el_name, capa, id_nodo, titAtt, att) {
-  debug(`desde att: ${capa} ${el_name} ${id_nodo}`);
   var atributos = "";
   for (let i = 0; i < att.length; i++) {
     let nameAt = divE("width12 textAlL flexGrow1", "", `<b>${titAtt[i]}: </b>`);
