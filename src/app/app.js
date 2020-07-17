@@ -1,3 +1,6 @@
+//TODO: guardar que elementos estan ocultos para cuando se guarde el pdf desocultarlos
+//antes de hacer la imagen, ademas ver como hacer imagen separada por tag por 
+//proporcion para que se guarde en el tamaño adecuado por hojas
 "use strict";
 //inicia envio de datos desde rust
 window.external.invoke("inicio");
@@ -8,10 +11,11 @@ ocultarElemento("appContainer");
 //muestra la app
 function mostrarApp(isIt) {
   var disp = document.getElementById("appContainer").style.display;
-  if (disp == "none" && isIt) {
-    document.getElementById("appContainer").style.display = "flex";
+  var disp = document.getElementById("appContainer");
+if (disp.style.display == "none" && isIt) {
+    disp.style.display = "flex";
   } else {
-    document.getElementById("appContainer").style.display = "none";
+    disp.style.display = "none";
   }
 }
 
@@ -65,8 +69,8 @@ function addConcep(
     }
   }
   var concep = `
-  <div class="cabCols" id="concepto_${idx}">
-      <div class="cabrows borde prim1" id="concepBase_${idx}">
+    <div class="cabCols" id="concepto_${idx}">
+      <div class="cabrows borde prim1 padUD" id="concepBase_${idx}">
         ${concepPrinData(cantidad, valorUni, descrip, descuento, importe)}
       </div>
       <div class="cabCols flexGrow1" id="concepDet_${idx}">
@@ -234,19 +238,19 @@ function esValido(val) {
   if (val == "Vigente") {
     document.getElementById(
       "validar"
-    ).innerHTML = `<b class="success">Comprobante Valido y Vigente</b>`;
+    ).innerHTML = `<b class="success padUD">Comprobante Valido y Vigente</b>`;
   } else if (val == "pendienteOk") {
     document.getElementById(
       "validar"
-    ).innerHTML = `<b class="warning">Respuesta Incompleta del Servicio de Validación, Intentelo Mas Tarde</b>`;
+    ).innerHTML = `<b class="warning padUD">Respuesta Incompleta del Servicio de Validación, Intentelo Mas Tarde</b>`;
   } else if (val == "pendienteNo2xx") {
     document.getElementById(
       "validar"
-    ).innerHTML = `<b class="warning">Sin Respuesta del Servicio de Validación, Intentelo Mas Tarde</b>`;
+    ).innerHTML = `<b class="warning padUD">Sin Respuesta del Servicio de Validación, Intentelo Mas Tarde</b>`;
   } else {
     document.getElementById(
       "validar"
-    ).innerHTML = `<b class="danger">Respuesta de Validación Negativa: ${val}</b>`;
+    ).innerHTML = `<b class="danger padUD">Respuesta de Validación Negativa: ${val}</b>`;
   }
 }
 
@@ -292,13 +296,13 @@ function pagoCabe(id, fechaP, formaPP, monedaP, montoP, otros) {
         `<b>${val_otros[i]}: </b>`
       );
       var dat = divE(`width12 textAlL flexGrow1`, "", otros[i]);
-      infoAdentro += divE("flexGrow1 cabrows", "", tit + dat);
+      infoAdentro += divE("flexGrow1 cabrows borde", "", tit + dat);
     }
   }
   var infoAdicional = divE("flexWrap cabrows", `infoAdP_${id}`, infoAdentro);
   var infoPago = divE("cabCols", `pagoDet_${id}`, infoAdicional);
   var pago = `<div class="pagoCont" id="pagoCabe_${id}">
-                <div class="cabrows borde prim1" id="pagoBase_${id}">
+                <div class="cabrows borde prim1 padUD" id="pagoBase_${id}">
                   ${pagoPrinData(fechaP, formaPP, monedaP, montoP)}
                 </div>
                 ${infoPago}
@@ -331,9 +335,9 @@ function docPago(idP, idD, data) {
     "Nuevo Saldo",
   ];
   let clasesBase = [
-    "flexGrow2 minWidth2",
+    "flexGrow1 width40",
     "flexGrow1 width20",
-    "flexGrow1 width30",
+    "flexGrow1 width40",
   ];
   //si idD es 0 agregas cabecera del documento relacionado
   if (idD == 0) {
@@ -358,7 +362,7 @@ function docPago(idP, idD, data) {
     baseData += divE(clasesBase[i], "", `<b>${data[i]}</b>`);
   }
   let base = divE(
-    "cabrows borde prim3 flexGrow1",
+    "cabrows borde prim3 padUD flexGrow1",
     `baseRP_${idP}_${idD}`,
     baseData
   );
@@ -368,7 +372,7 @@ function docPago(idP, idD, data) {
     if (data[i] != "") {
       let tit = divE("width12 textAlL flexGrow1", "", `<b>${val_rel[i]}: </b>`);
       let dat = divE(`width12 textAlL flexGrow1`, "", data[i]);
-      infoAdentro += divE("flexGrow1 cabrows", "", tit + dat);
+      infoAdentro += divE("flexGrow1 cabrows borde", "", tit + dat);
     }
   }
   var infoAdicional1 = divE("cabrows", "", infoAdentro);
@@ -377,7 +381,7 @@ function docPago(idP, idD, data) {
     if (data[i] != "") {
       let tit = divE("width12 textAlL flexGrow1", "", `<b>${val_rel[i]}: </b>`);
       let dat = divE(`width12 textAlL flexGrow1`, "", data[i]);
-      infoAdentro += divE("flexGrow1 cabrows", "", tit + dat);
+      infoAdentro += divE("flexGrow1 cabrows borde", "", tit + dat);
     }
   }
   var infoAdicional2 = divE("cabrows", "", infoAdentro);
@@ -485,7 +489,7 @@ function parteConcep(idx, req, opc, ped) {
   document.getElementById(`datosAd_${idx}`).insertAdjacentHTML(
     "afterend",
     `<div class="borde cabCols" id="parteConcepCont_${idx}">
-      <div id="parteConCabe_${idx}" class="bordeDownDash ${colorTit}"><b>Parte</b></div>
+      <div id="parteConCabe_${idx}" class="bordeDownDash ${colorTit} padUD"><b>Parte</b></div>
       <div id="parteCuerpo_${idx}" class="cabCols">
       <div id="parteConReq_${idx}" class="cabrows">${dataRequerida}</div>
       ${opcional}
@@ -621,7 +625,7 @@ function cabezaNodo(
     color2 = "prim4";
   }
   var titDiv = divE(
-    `titulo bordeDownDash ${color1}`,
+    `titulo bordeDownDash ${color1} padUD`,
     `${el_name}_${id_nodo}_titulo`,
     `<b>${titulo}</b>`
   );

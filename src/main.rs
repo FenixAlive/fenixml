@@ -81,7 +81,7 @@ fn abrir_xml() -> Option<Element> {
     return leer_cfdi(Path::new(&open_file));
 }
 
-//función que implementa el leer un cfdi y validarlo de forma simple
+//función que implementa el leer un cfdi, ver que sea version 3.3
 fn leer_cfdi(path: &Path) -> Option<Element> {
     if path.extension() == Some(std::ffi::OsStr::new("xml")) {
         let xml = match fs::read_to_string(path) {
