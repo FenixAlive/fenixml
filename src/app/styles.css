@@ -168,19 +168,19 @@ img{
 }
 
 .prim1{
-  background-color: #9e9fff;
+  background-color: #3399FF;
 }
 
 .prim2{
-  background-color: #d7d9fc;
+  background-color: #AEE0F7;
 }
 
 .prim3{
-  background: #7fd7d3;
+  background: #33FF99;
 }
 
 .prim4{
-  background: #c2f7f5;
+  background: #AEF9D7;
 }
 
 .prim1:hover, .prim2:hover, .prim3:hover, .prim4:hover{
@@ -189,19 +189,19 @@ img{
 }
 
 .prim1:hover{
-  background-color: #a7abff;
+  background-color: #70B7FA;
 }
 
 .prim2:hover{
-  background-color: #c1c3f7;
+  background-color: #63CBF9;
 }
 
 .prim3:hover{
-  background: #7fe7e3;
+  background: #80FCB3;
 }
 
 .prim4:hover{
-  background: #92d7d5;
+  background: #79DAAF;
 }
 
 #qr{

@@ -123,9 +123,9 @@ function addTrasRetConcep(
 ) {
   var name = "";
   if (tipo == "Traslados") {
-    name = "Traslado:";
+    name = "Traslado";
   } else if (tipo == "Retenciones") {
-    name = "Retención:";
+    name = "Retención";
     importe = "- " + importe;
   }
   if (tipoFactor == "Tasa") {
