@@ -7,7 +7,7 @@
   </cfdi:Conceptos>
   <cfdi:Complemento>
 		<nomina12:Nomina xmlns:nomina12="http://www.sat.gob.mx/nomina12" Version="1.2" FechaPago="2017-05-12" FechaInicialPago="2017-04-01" FechaFinalPago="2017-04-30" NumDiasPagados="7" TipoNomina="O"  TotalOtrosPagos="12.15" TotalDeducciones="26.91" TotalPercepciones="1084.30" xsi:schemaLocation="http://www.sat.gob.mx/nomina12 http://www.sat.gob.mx/informacion_fiscal/factura_electronica/Documents/Complementoscfdi/nomina12.xsd">
-			    <nomina12:Emisor RegistroPatronal=" " />
+			    <nomina12:Emisor RegistroPatronal="" />
 			    <nomina12:Receptor Curp=" " TipoContrato="01" TipoRegimen="02" NumEmpleado="1" PeriodicidadPago="04" ClaveEntFed="MEX" NumSeguridadSocial="123456" Banco="012" FechaInicioRelLaboral="2017-01-01" Puesto="Socio fundador" SalarioBaseCotApor="161.90" RiesgoPuesto="1" SalarioDiarioIntegrado="161.90" Antigüedad="P3M29D"/> 
 			    	<nomina12:Percepciones TotalGravado="1084.30" TotalExento="0.00" TotalSueldos="1084.30"  >
                 <nomina12:Percepcion TipoPercepcion="001" Clave="001" Concepto="Sueldos Salarios Rayas y Jornales" ImporteGravado="1084.30" ImporteExento="0.00" /></nomina12:Percepciones>

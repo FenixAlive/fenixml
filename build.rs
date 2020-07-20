@@ -9,7 +9,7 @@ fn main() {
     // as calling rc.exe might be slow
     if std::env::var("PROFILE").unwrap() == "release" {
         let mut res = winres::WindowsResource::new();
-        res.set_icon("./icon_cheetah_xml_cfdi.ico")
+        res.set_icon("./icon_fenixml.ico")
             .set_manifest_file("manifest.xml");
         match res.compile() {
             Err(e) => {

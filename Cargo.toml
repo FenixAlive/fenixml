@@ -1,5 +1,5 @@
 [package]
-name = "cheetah_xml_cfdi"
+name = "fenixml"
 version = "0.1.0"
 authors = ["Luis Angel Muñoz Franco <luisangelmf@gmail.com>"]
 edition = "2018"
@@ -20,6 +20,6 @@ ureq = "1.3.0"
 winres = "0.1"
 
 [package.metadata.winres]
-FileDescription = "Cheetah: Visor de CFDI v.3.3 desde su archivo xml"
-OriginalFilename = "Cheetah XML CFDI.exe"
+FileDescription = "Fenixml: Visor de CFDI v.3.3 desde su archivo xml"
+OriginalFilename = "fenixml.exe"
 LegalCopyright = "Luis Angel Muñoz Franco © 2020"

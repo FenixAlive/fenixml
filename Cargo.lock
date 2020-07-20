@@ -71,18 +71,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
 
 [[package]]
-name = "cheetah_xml_cfdi"
-version = "0.1.0"
-dependencies = [
- "format_money",
- "tinyfiledialogs",
- "ureq",
- "web-view",
- "winres",
- "xmltree",
-]
-
-[[package]]
 name = "chunked_transfer"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -103,6 +91,18 @@ name = "discard"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "212d0f5754cb6769937f4501cc0e67f4f4483c8d2c3e1e922ee9edbe4ab4c7c0"
+
+[[package]]
+name = "fenixml"
+version = "0.1.0"
+dependencies = [
+ "format_money",
+ "tinyfiledialogs",
+ "ureq",
+ "web-view",
+ "winres",
+ "xmltree",
+]
 
 [[package]]
 name = "format_money"

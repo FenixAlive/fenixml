@@ -1,4 +1,4 @@
-//#![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 #![forbid(unsafe_code)]
 use format_money::format_money;
 use std::{collections::HashMap, env, fs, path::Path, thread};
@@ -18,11 +18,11 @@ fn main() {
         javascript = include_str!("./app/app.js")
     );
     match web_view::builder()
-        .title("Cheetah: Visor de CFDI v.3.3 desde su archivo xml")
+        .title("Fenixml: Visor de CFDI v.3.3 desde su archivo xml")
         .content(Content::Html(html))
         .size(630, 590)
         .resizable(true)
-        .debug(true)
+        .debug(false)
         .user_data(())
         .invoke_handler(|webview, arg| {
             if arg == "inicio" {
@@ -1035,3 +1035,4 @@ fn nodo_xml(
     }
     Ok(())
 }
+
