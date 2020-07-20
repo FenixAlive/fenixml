@@ -1,5 +1,5 @@
 //TODO: guardar que elementos estan ocultos para cuando se guarde el pdf desocultarlos
-//antes de hacer la imagen, ademas ver como hacer imagen separada por tag por 
+//antes de hacer la imagen, ademas ver como hacer imagen separada por tag por
 //proporcion para que se guarde en el tamaño adecuado por hojas
 "use strict";
 //inicia envio de datos desde rust
@@ -12,7 +12,7 @@ ocultarElemento("appContainer");
 function mostrarApp(isIt) {
   var disp = document.getElementById("appContainer").style.display;
   var disp = document.getElementById("appContainer");
-if (disp.style.display == "none" && isIt) {
+  if (disp.style.display == "none" && isIt) {
     disp.style.display = "flex";
   } else {
     disp.style.display = "none";

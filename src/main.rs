@@ -1,13 +1,13 @@
 //#![windows_subsystem = "windows"]
 #![forbid(unsafe_code)]
 use format_money::format_money;
-use std::{collections::HashMap, env, fs, path::Path};
+use std::{collections::HashMap, env, fs, path::Path, thread};
 use tinyfiledialogs as tfd;
 use ureq;
 use web_view::*;
 use xmltree::Element;
 
-//TODO: hacer asincrona la validación, terminar vista css, agregar boton a parte
+//TODO:
 //cambiar el titulo final webview, descomentar primera linea y debug(false)
 fn main() {
     // webview
@@ -24,15 +24,20 @@ fn main() {
         .resizable(true)
         .debug(true)
         .user_data(())
-        .invoke_handler(move |webview, arg| {
+        .invoke_handler(|webview, arg| {
             if arg == "inicio" {
                 if let Some(cfdi) = abrir_xml() {
                     webview.eval("mostrarApp(true)")?;
-                    let datos_val = datos_cfdi(webview, &cfdi)?;
+                    let (rfc_emi, rfc_rec, total, uuid) = datos_cfdi(webview, &cfdi)?;
                     //validar xml
-                    let is_val =
-                        validar_cfdi_sat(&datos_val.0, &datos_val.1, &datos_val.2, &datos_val.3);
-                    webview.eval(&is_val)?;
+                    let handle = webview.handle();
+                    thread::spawn(move || {
+                        let is_val = validar_cfdi_sat(&rfc_emi, &rfc_rec, &total, &uuid);
+                        handle.dispatch(move |webview| {
+                            webview.eval(&is_val)?;
+                            Ok(())
+                        })
+                    });
                 } else {
                     webview.exit();
                 }
@@ -477,8 +482,6 @@ fn datos_cfdi(
                                 if otros_datos.len() > 1 {
                                     otros_datos = String::from(&otros_datos[1..]);
                                 }
-                                //TODO: temporal quitar siguiente linea otros_datos
-                                otros_datos = String::from(" 'hola','ajasdf asdasdgasdg asgafgaf adfgadfgadfg adfgadfgadf', 'como', 'rfcEmisor', 'sfdasdfasdfasdfasdfasdfasdasdf', 'aAS8823SD8sdff8223Aasd sdfsdfa aASDJKHJJK', 'ultima','sdfasdasdg asdasdfasfasd asdfasdf' ,'seaeavasasd asdasdradsfasdewfawecawec asdcawerasedasdasdcaewfasdcasdawefascdaersdcarq4513453451345qwefqewasdcq341234sdedasadQWEASDqwdASDwedasdASCewdsdASDASDASDasdfwesdd', '10 asdfewsdfsd asdasdfasdfasdfasdf', '11 asdassadASDsA SDA'" );
                                 web.eval(&format!(
                                     "pagoCabe('{}','{}','{}','{}','{}',[{}])",
                                     id,
@@ -899,7 +902,7 @@ fn validar_cfdi_sat(rfc_emit: &str, rfc_recib: &str, total: &str, uuid: &str) ->
                 "SOAPAction",
                 "http://tempuri.org/IConsultaCFDIService/Consulta",
             )
-            .timeout_connect(3_000) //al hacerlo asincrono puedes dejarlo mas tiempo
+            .timeout_connect(10_000)
             .send_string(&cuerpo);
     let es_valido;
     if resp.ok() {
@@ -1032,4 +1035,3 @@ fn nodo_xml(
     }
     Ok(())
 }
-

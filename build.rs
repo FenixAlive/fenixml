@@ -9,8 +9,8 @@ fn main() {
     // as calling rc.exe might be slow
     if std::env::var("PROFILE").unwrap() == "release" {
         let mut res = winres::WindowsResource::new();
-        res.set_icon("./icon_ver_xml_cfdi.ico")
-           .set_manifest_file("manifest.xml");
+        res.set_icon("./icon_cheetah_xml_cfdi.ico")
+            .set_manifest_file("manifest.xml");
         match res.compile() {
             Err(e) => {
                 write!(std::io::stderr(), "{}", e).unwrap();
@@ -23,5 +23,5 @@ fn main() {
 
 // nothing to do for other operating systems
 #[cfg(not(target_os = "windows"))]
-fn main() {
-}
+fn main() {}
+
