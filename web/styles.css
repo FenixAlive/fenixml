@@ -1,0 +1,286 @@
+*{
+  padding: 0;
+  margin: 0;
+  font-size: 9px;
+  color: #232323;
+  font-family: Serif, 'Courier New', Courier, monospace;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+div{
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+
+#appContainer{
+  min-width: 600px;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+body{
+ background-color: #232323;
+}
+
+#container{
+  margin: 1em 0.5em 19px 0.5em;
+  padding: 0.5em;
+  width: 93%;
+  background-color: #f9f9f9;
+  box-shadow: 1px 1px 1px #979797;
+}
+
+.cabCols, .cabColsStart{
+  display: flex;
+  flex-direction: column;
+}
+
+.cabCols{
+  justify-content: space-around;
+}
+
+.cabColsStart{
+  justify-content: flex-start;
+}
+
+.cabrows, .cabrowsStart{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.cabrows{
+  justify-content: space-around;
+}
+
+.cabrowsStart{
+  justify-content: flex-start;
+}
+
+.flexWrap{
+  flex-wrap: wrap !important;
+}
+
+.flexGrow1{
+  flex-grow: 1;
+}
+
+.flexGrow2{
+  flex-grow: 2;
+}
+
+.flexGrow3{
+  flex-grow: 3;
+}
+
+.flexGrow4{
+  flex-grow: 4;
+}
+
+.width75{
+  min-width: 74%;
+}
+
+.width70{
+	min-width: 69%;
+}
+.minWidth2{
+  min-width: 49%;
+}
+
+.width40{
+  min-width: 39%;
+}
+.width30{
+  min-width: 30%;
+}
+
+.width20{
+  min-width: 19%;
+}
+
+.width16{
+  width: 16%;
+}
+
+.width12{
+  min-width: 12%;
+}
+
+.textAlL{
+  text-align: left;
+  padding: 0.2em 0.1em 0.2em 0.3em;
+}
+
+.textAlR{
+  text-align: right;
+  padding: 0.2em 0.3em 0.2em 0.1em;
+}
+
+.padUD{
+  padding: 0.23em 0;
+}
+
+p{
+	text-align: left;
+}
+
+h1{
+	font-size: 2em;
+}
+
+h3{
+	font-size: 1.5em;
+}
+
+h3 > em{
+	font-size: 1.0em;
+}
+
+ul{
+	width: auto;
+}
+
+li{
+	text-align: left;
+}
+
+.pad{
+	padding: 0.2em 0.23em
+}
+
+img{
+  width: 99%;
+}
+
+.borde, .bordeDash, .bordeUpDash, .bordeDownDash, #container{
+  border-radius: 3px;
+}
+
+.borde{
+  border: 1px solid #232323;
+}
+
+.bordeDash{
+  border: 1px dashed #232323;
+}
+
+.borde, .bordeDash{
+  margin: 2px;
+}
+
+.bordeUpDash{
+  border-top: 0.7px dashed #333;
+  margin: 1px 0 0 0;
+}
+
+.bordeDownDash{
+  border-bottom: 0.7px dashed #333;
+  margin: 0 0 1px 0;
+}
+
+.success{
+  background-color: #35c7a3;
+}
+
+.warning{
+  background-color: #e9cc27;
+}
+
+.danger{
+  background-color: #e73f79;
+}
+
+.prim1{
+  background-color: #3399FF;
+}
+
+.prim2{
+  background-color: #AEE0F7;
+}
+
+.prim3{
+  background: #33FF99;
+}
+
+.prim4{
+  background: #AEF9D7;
+}
+
+.prim1:hover, .prim2:hover, .prim3:hover, .prim4:hover{
+  cursor: pointer;
+  box-shadow: 2px 2px 2px #3e6793;
+}
+
+.prim1:hover{
+  background-color: #70B7FA;
+}
+
+.prim2:hover{
+  background-color: #63CBF9;
+}
+
+.prim3:hover{
+  background: #80FCB3;
+}
+
+.prim4:hover{
+  background: #79DAAF;
+}
+
+#qr{
+  padding: 1px;
+}
+
+#validar{
+	margin: 0.3em 1em;
+}
+
+@media (min-width: 750px) { 
+  *{
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 900px) { 
+  *{
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1100px) { 
+  *{
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1300px) { 
+  *{
+    font-size: 17px;
+  }
+}
+
+@media (min-width: 1500px) { 
+  *{
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 1700px) { 
+  *{
+    font-size: 19px;
+  }
+}
+
+@media (min-width: 2000px) { 
+  *{
+    font-size: 20px;
+  }
+}

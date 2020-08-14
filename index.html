@@ -5,21 +5,85 @@
         <title>Fenixml</title>
 				<link rel="icon" type="image/vnd.microsoft.icon" href="./icon_fenixml.ico">
 				<link rel="stylesheet" href="./web/styles.css">
+				<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-	<h1>Fenixml</h1>
-	<h5><em>Fenixml</em> es un programa que permite ver los archivos cfdi 3.3 en su representación impresa al dar doble click sobre el archivo xml</h5>
-	<div><p>Fenixml ademas realiza una solicitud de validación al SAT al momento de abrir el xml y muestra su resultado:</p>
-			<img src="" alt="imagen validación SAT">
-	</div>
-	<div>
-					<p>Fenixml solo permite hacer una visualización de la información por lo cual no es posible guardar ni imprimir este archivo</p>
-	</div>
-	<div>
-					<p>Fenixml permite visualizar todos los elementos importantes del xml, ademas de realizar la representación impresa del Qr y la cadena original</p>
-					<p>Fenixml solo funciona con documentos xml con la versión 3.3 que es la que actualmente se utiliza</p>
-					<p>Fenixml permite ver y ocultar elementos para una mejor visualización de los datos que se buscan</p>
-					<p>Fenixml funciona para cualquier tipo de documento: Ingreso, Egreso, Traslado, Pago y Nominas, ademas de poder visualizar cualquier tipo de complemento que se tenga en el xml</p>
+	<div id="appContainer">
+		<div id="container" class="cabCols">
+			<header id="head" class="cabCols borde">
+				<h1>Fenixml</h1>
+				<h3><em>Fenixml</em> es un programa que permite ver los archivos cfdi 3.3 en su representación impresa desde el archivo xml</h3>
+			</header>
+			<main class="cabCols">
+				<div id="valCont" class="cabCols borde">
+					<div class="textAlL pad">
+						<h3>Validación</h3>
+					<p>Fenixml realiza una solicitud de validación al SAT al momento de abrir el xml y muestra su resultado. El resultado de la validación se observará en la parte superior de la app con uno de los siguientes resultados:</p>
+					</div>
+					<div class="textAlL pad">Cuando aún no se obtiene una respuesta del servidor de parte del SAT se observará el siguiente cuadro:</div>
+      <div class="cabCols borde" id ="validar"><b class="padUD">Esperando revisión de validación</b></div>
+					<div class="textAlL pad">Si la validación es correcta y el comprobante es valido se observará lo siguiente:</div>
+      <div class="cabCols borde" id ="validar"><b class="success padUD">Comprobante Valido y Vigente</b></div>
+					<div class="textAlL pad">Cuando la respuesta de validación tenga algún error (no significa que el xml tenga error) se mostrará lo siguiente:</div>
+      <div class="cabCols borde" id ="validar"><b class="warning padUD">Respuesta Incompleta del Servicio de Validación, Intentelo Mas Tarde</b></div>
+					<div class="textAlL pad">Si no se pudó obtener respuesta (No hay internet o no funciona el servidor del SAT en ese momento) se mostrará lo siguiente:</div>
+      <div class="cabCols borde" id ="validar"><b class="warning padUD">Sin Respuesta del Servicio de Validación, Intentelo Mas Tarde</b></div>
+					<div class="textAlL pad">Finalmente cuando se ha obtenido una respuesta negativa se observará lo siguiente:</div>
+      <div class="cabCols borde" id ="validar"><b class="danger padUD">Respuesta de Validación Negativa: (respuesta del SAT)</b></div>
+				</div>
+				<div id="ventajas" class="cabCols borde">
+								<h3>Ventajas</h3>
+								<div class="cabrows">
+								<ul>
+								        <li>Permite visualizar todos los elementos importantes del xml, ademas de crear el codigo QR y la cadena original.</li>
+												<li>Puedes ver y ocultar elementos para una mejor visualización de la información del xml.</li>
+												<li>Trabaja con cualquier tipo de documento: Ingreso, Egreso, Traslado, Pago y Nomina, ademas de visualizar cualquier complemento del xml.</li>
+								</ul>
+								</div>
+				</div>
+				<div id="restricciones" class="cabCols borde">
+					<h3>Restricciones</h3>
+					<div class="cabrows">
+					<ul>
+					<li>Fenixml solo permite hacer una visualización de la información por lo cual no es posible guardar ni imprimir directamente desde la app.</li>
+					<li>Fenixml solo funciona con documentos xml con la versión CFDI 3.3, la cual es la versión vigente.</li>
+					<li>Fenixml solo funciona en Windows 10 con microsoft Edge instalado y actualizado, asi mismo se encuentra el binario para linux.</li>
+					</ul>
+					</div>
+				</div>
+				<div id="instalacion" class="cabCols borde">
+								<h3>Descargar</h3>
+								<div id="instala" class="cabrows">
+									<p>Windows 10: <a href="./web/instalar fenixml.exe" download>descarga</a></p>
+									<p>Linux: <a href="./web/fenixml.tar.gz" download>descarga</a></p>
+								</div>
+									<p>Link de donación Paypal</p>
+				</div>
+				<div id="instrucciones" class="cabCols borde">
+								<h3>Instrucciones de Uso</h3>
+								<p>Una vez instalado se vinculan automaticamente todos los archivos tipo xml para poder ser abiertos mediante el programa Fenixml, por lo cual con dar doble click sobre cualquier archivo xml automaticamente se abrirá el comprobante.</p>
+								<p>En caso que el xml que se pretenda abrir no sea un comprobante CFDI, no sea versión 3.3 o no tenga la estructura adecuada, (Opción poco probable implicaría que no es valido ya que no se siguieron las reglas para su generación), marcará un error el programa y se cerrará automaticamente </p>
+								<p>Tambien es posible abrir directamente el programa XML desde el buscador de Windows y una vez abierto se le pedirá buscar el xml que desea visualizar.</p>
+								<div class="cabrows">
+								<div class="width70">texto</div>
+								<div class="width30">
+									<img src="./web/img/buscador.png" class="" alt="imagen buscar XML">
+								</div>
+								</div>
+				</div>
+				<div class="cabrows borde">
+								<h3>Galeria</h3>
+				</div>
+				<div id="galeria" class="cabrows borde">
+					<div class="width30"><img src="./web/img/plegado.png" alt="Fenixml forma inicial con información plegada"></div>
+					<div class="width30"><img src="./web/img/ejemplo.png" alt="Fenixml mostrando su información"></div>
+					<div class="width30"><img src="./web/img/desplegado.png" alt="Fenixml con campos desplegados"></div>
+				</div>
+			</main>
+			<footer class="cabCols borde">
+					<div class="data"><em>Luis Angel Muñoz Franco @ 2020 </em></div>
+			</footer>
+		</div>
 	</div>
 	<script src="./web/web.js"></script>
 </body>
