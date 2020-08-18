@@ -21,7 +21,7 @@
         <header id="head" class="cabCols borde pad">
           <h1>Fenixml</h1>
           <h3>
-            <em>Fenixml</em> es un programa que permite ver los archivos cfdi
+            <em>Fenixml</em> es una aplicación que permite ver los archivos cfdi
             3.3 en su representación impresa desde el archivo xml
           </h3>
         </header>
@@ -124,7 +124,7 @@
           <div id="instalacion" class="cabCols borde pad">
             <h3>Descargar</h3>
             <div id="instala" class="cabrows">
-              <div class="borde logo">
+              <div class="borde logo clickeable">
                 <a
                   href="https://github.com/FenixAlive/fenixml/releases/latest/download/fenixml.exe"
                   download
@@ -136,7 +136,7 @@
                   />
                 </a>
               </div>
-              <div class="borde logo">
+              <div class="borde logo clickeable">
                 <a href="./web/fenixml.tar.gz" download>
                   <img
                     src="./web/img/linux_logo.png"
@@ -147,11 +147,49 @@
               </div>
             </div>
           </div>
+          <div id="donacion" class="cabCols borde pad">
+            <h3>Donaciones</h3>
+            <div class="pad">
+              <p>
+                Si le gusta la aplicación y desea apoyar al proyecto puede hacer
+                una aportación economica, sin importar el monto su donación será
+                de gran utilidad para seguir creando proyectos como este y
+                seguir mejorando esta aplicación.
+              </p>
+            </div>
+            <form
+              action="https://www.paypal.com/cgi-bin/webscr"
+              method="post"
+              target="_top"
+            >
+              <input type="hidden" name="cmd" value="_s-xclick" />
+              <input
+                type="hidden"
+                name="hosted_button_id"
+                value="2RLPMNA7LCFMC"
+              />
+              <input
+                type="image"
+                src="https://www.paypalobjects.com/en_US/MX/i/btn/btn_donateCC_LG.gif"
+                border="0"
+                name="submit"
+                title="PayPal - The safer, easier way to pay online!"
+                alt="Donate with PayPal button"
+              />
+              <img
+                alt=""
+                border="0"
+                src="https://www.paypal.com/en_MX/i/scr/pixel.gif"
+                width="1"
+                height="1"
+              />
+            </form>
+          </div>
           <div id="instrucciones" class="cabCols borde pad">
             <h3>Instrucciones de Uso</h3>
             <div class="cabrows">
-              <div class="minWidth2 flexGrow2 pad">
-                <ul>
+              <div class="minWidth2 flexGrow2">
+                <ul class="pad2">
                   <li>
                     Una vez instalado en windows se vinculan automaticamente
                     todos los archivos tipo xml para poder ser abiertos mediante
@@ -173,14 +211,20 @@
                   </li>
                 </ul>
               </div>
-              <div class="width20 flexGrow1 pad borde">
+              <div
+                class="width20 flexGrow1 pad borde clickeable"
+                onClick="modalf('app')"
+              >
                 <img
                   src="./web/img/app.png"
                   class="imggal"
                   alt="imagen buscar XML"
                 />
               </div>
-              <div class="width20 flexGrow1 pad borde">
+              <div
+                class="width20 flexGrow1 pad borde clickeable"
+                onClick="modalf('buscador')"
+              >
                 <img
                   src="./web/img/buscador.png"
                   class="imggal"
@@ -193,21 +237,24 @@
             <h3>Galeria</h3>
           </div>
           <div id="galeria" class="cabrows borde pad">
-            <div class="width30">
+            <div class="width30 clickeable borde" onClick="modalf('plegado')">
               <img
                 src="./web/img/plegado.png"
                 alt="Fenixml forma inicial con información plegada"
                 class="imggal"
               />
             </div>
-            <div class="width30">
+            <div class="width30 clickeable borde" onClick="modalf('ejemplo')">
               <img
                 src="./web/img/ejemplo.png"
                 alt="Fenixml mostrando su información"
                 class="imggal"
               />
             </div>
-            <div class="width30">
+            <div
+              class="width30 clickeable borde"
+              onClick="modalf('desplegado')"
+            >
               <img
                 src="./web/img/desplegado.png"
                 alt="Fenixml con campos desplegados"
@@ -215,9 +262,14 @@
               />
             </div>
           </div>
+          <div id="modal" class=""></div>
         </main>
         <footer class="cabCols borde pad">
-          <div class="data"><em>Luis Angel Muñoz Franco @ 2020 </em></div>
+          <div class="data">
+            <a href="https://github.com/FenixAlive/"
+              ><em>Luis Angel Muñoz Franco @ 2020 </em></a
+            >
+          </div>
         </footer>
       </div>
     </div>

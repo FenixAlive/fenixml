@@ -154,13 +154,26 @@ li {
   text-align: left;
 }
 
+em {
+  font-weight: bold;
+}
+
+a {
+  text-decoration: none !important;
+}
+
 .pad {
   padding: 0.3em 0.3em;
 }
 
+.pad2 {
+  padding: 0.9em 2em;
+}
+
 .imglogo {
-  height: 99%;
+  max-height: 99%;
   width: auto;
+  max-width: 95%;
 }
 
 .imggal {
@@ -259,8 +272,44 @@ li {
   width: auto;
 }
 
-.logo:hover {
+.clickeable {
+  box-shadow: 0.2em 0.2em 0.2em #ccc;
+  cursor: pointer;
+}
+
+.clickeable:hover {
   background-color: #ccc;
+  box-shadow: 0.1em 0.1em 0.1em #ccc;
+}
+
+.modal {
+  display: fixed;
+  background: rgba(0, 0, 0, 0.9);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  transition: all 0.5s;
+}
+
+.btnmodal {
+  display: fixed;
+  position: fixed;
+  top: 2em;
+  right: 3em;
+  background: rgba(0, 0, 0, 0.9);
+  color: #e55;
+  border: 3px solid #e55;
+  border-radius: 7px;
+  padding: 0.3em 0.7em;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btnmodal:hover {
+  color: #333;
+  background: #e55;
 }
 
 @media (min-width: 750px) {
