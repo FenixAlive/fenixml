@@ -178,6 +178,7 @@ a {
 
 .imggal {
   width: 99%;
+  padding: 0.23em;
 }
 
 .borde,
@@ -310,6 +311,10 @@ a {
 .btnmodal:hover {
   color: #333;
   background: #e55;
+}
+
+.imcont {
+  align-items: flex-start !important;
 }
 
 @media (min-width: 750px) {

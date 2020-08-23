@@ -20,6 +20,6 @@ ureq = "1.3.0"
 winres = "0.1"
 
 [package.metadata.winres]
-FileDescription = "Fenixml: Visor de CFDI v.3.3 desde su archivo xml"
+FileDescription = "FeniXML: Visor de CFDI v.3.3 desde su archivo xml"
 OriginalFilename = "fenixml.exe"
 LegalCopyright = "Luis Angel Muñoz Franco © 2020"

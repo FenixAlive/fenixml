@@ -18,7 +18,7 @@ fn main() {
         javascript = include_str!("./app/app.js")
     );
     match web_view::builder()
-        .title("Fenixml: Visor de CFDI v.3.3 desde su archivo xml")
+        .title("FeniXML: Visor de CFDI v.3.3 desde su archivo xml")
         .content(Content::Html(html))
         .size(630, 590)
         .resizable(true)
